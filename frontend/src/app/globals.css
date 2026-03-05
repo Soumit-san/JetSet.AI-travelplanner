@@ -10,7 +10,7 @@
   --font-sans: var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-syne), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, monospace;
-  
+
   --color-ink-900: var(--ink-900);
   --color-ink-800: var(--ink-800);
   --color-ink-700: var(--ink-700);
@@ -84,25 +84,25 @@
   /* App Theme (Dark Immersive) */
   --background: var(--ink-900);
   --foreground: #ffffff;
-  
+
   --card: rgba(255, 255, 255, 0.07);
   --card-foreground: #ffffff;
-  
+
   --popover: var(--ink-800);
   --popover-foreground: #ffffff;
-  
+
   --primary: var(--sky-pure);
   --primary-foreground: #ffffff;
-  
+
   --secondary: var(--ink-700);
   --secondary-foreground: #ffffff;
-  
+
   --muted: var(--ink-800);
   --muted-foreground: #94a3b8;
-  
+
   --accent: var(--ink-700);
   --accent-foreground: #ffffff;
-  
+
   --destructive: var(--red);
   --destructive-foreground: #ffffff;
 
@@ -113,28 +113,29 @@
   --radius: var(--r-md);
 }
 
+/* Note: The .dark selector is intentionally duplicated from :root for future light-mode support */
 .dark {
   --background: var(--ink-900);
   --foreground: #ffffff;
-  
+
   --card: rgba(255, 255, 255, 0.07);
   --card-foreground: #ffffff;
-  
+
   --popover: var(--ink-800);
   --popover-foreground: #ffffff;
-  
+
   --primary: var(--sky-pure);
   --primary-foreground: #ffffff;
-  
+
   --secondary: var(--ink-700);
   --secondary-foreground: #ffffff;
-  
+
   --muted: var(--ink-800);
   --muted-foreground: #94a3b8;
-  
+
   --accent: var(--ink-700);
   --accent-foreground: #ffffff;
-  
+
   --destructive: var(--red);
   --destructive-foreground: #ffffff;
 
@@ -145,15 +146,16 @@
 
 @layer utilities {
   .glass-panel {
-    background: rgba(255, 255, 255, 0.07);
-    border: 1px solid rgba(255, 255, 255, 0.14);
+    background: var(--card, rgba(255, 255, 255, 0.07));
+    border: 1px solid var(--border, rgba(255, 255, 255, 0.14));
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
   }
+
   .glass-input {
-    background: rgba(255, 255, 255, 0.07);
-    border: 1px solid rgba(255, 255, 255, 0.14);
+    background: var(--card, rgba(255, 255, 255, 0.07));
+    border: 1px solid var(--border, rgba(255, 255, 255, 0.14));
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
   }
@@ -163,10 +165,17 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground font-sans;
   }
-  h1, h2, h3, h4, h5, h6 {
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     @apply font-display font-bold;
   }
 }
