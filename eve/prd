@@ -1,0 +1,337 @@
+
+JetSet.AI
+Your AI-Powered Travel Companion
+
+PRODUCT REQUIREMENTS DOCUMENT
+Version	1.0 — Initial Release
+Status	Draft — Pending Stakeholder Review
+Author	Product Team, JetSet.AI
+Date	March 2026
+Stack	React + TypeScript (Vite)
+Classification	Confidential / Internal Use Only
+
+Table of Contents
+
+
+
+1. Executive Summary
+JetSet.AI is a React/TypeScript web application that transforms the traditionally fragmented travel planning experience into a seamless, intelligent, end-to-end journey. The existing frontend provides a polished dark-themed landing page built with Vite and currently integrates a third-party Botpress chatbot widget. This PRD defines the full product requirements to remove that chatbot dependency and replace it with a deeply integrated, API-driven planning engine delivering real-time flight fares, hotel recommendations, attraction opening hours, best-travel-season insights, emergency flight options, and AI-generated itineraries — all within one unified interface.
+
+The redesigned product is organized around a single planning flow: the user provides their origin, destination, travel dates, trip duration, and budget — and JetSet.AI assembles a complete travel package with live data from best-in-class APIs, ranked by cost and quality.
+
+2. Problem Statement
+2.1 Current User Pain Points
+•Travelers must juggle 5-10 separate apps (Skyscanner, Booking.com, Google Maps, TripAdvisor, Weather apps) to plan a single trip.
+•Flight prices are volatile and opaque; finding the cheapest fare especially for emergencies requires constant manual monitoring.
+•Seasonal travel intelligence (best months to visit, crowd levels, weather windows) is scattered across travel blogs with no personalization.
+•Hotel discovery relative to key landmarks is manual and time-consuming with no budget calibration.
+•Attraction opening hours are inconsistently maintained across the web and hard to aggregate into a single view.
+•Day-by-day itinerary planning remains a manual, spreadsheet-driven exercise for most travelers.
+
+2.2 Existing App Limitations
+•The Botpress chatbot widget is a black box — it cannot render structured travel data like flight cards, hotel grids, or embedded maps.
+•No persistent state: the chatbot conversation is lost on every page refresh.
+•No real-time API integration: all data is static or hallucinated by the underlying LLM.
+•No budget awareness or cost optimization logic built into any part of the current UI.
+
+3. Goals & Success Metrics
+3.1 Product Goals
+1.Replace the Botpress chatbot with a native, structured planning interface.
+2.Integrate live flight, hotel, attraction, and weather data via third-party APIs.
+3.Deliver a complete trip plan within 30 seconds of user input via parallel API calls.
+4.Enable emergency flight lookups for same-day or next-day travel at the cheapest available fare.
+5.Surface best-season-to-travel recommendations calibrated to user budget and stated preferences.
+
+3.2 Key Success Metrics
+Metric	Target
+Time-to-first-plan	30 seconds from form submission
+Flight data freshness	Live prices, updated every 5 minutes
+Hotel results returned	10 or more options per search
+Itinerary accuracy (attraction hours)	95%+ match to Google Places data
+Emergency flight result latency	10 seconds or less
+User session completion rate	60%+ of sessions reach the itinerary step
+Mobile Lighthouse score	90 or above
+
+4. Scope
+4.1 In Scope (v1.0)
+•Trip Planning Wizard: multi-step form collecting origin, destination, dates, duration, budget, traveler count, and travel preference tags
+•Flight Search Module: outbound and return flight cards with airline, timing, layover, and price details plus booking deep-links
+•Hotel & Accommodation Finder: hotels near destination landmarks filtered by budget tier, with embedded map view
+•Best Season Advisor: month-by-month travel score based on weather history, crowd levels, and flight price index
+•Itinerary Generator: day-by-day plan with famous landmarks, real opening hours, visit duration estimates, and meal suggestions
+•Emergency Flight Panel: real-time cheapest same-day or next-day flights accessible from the app header at all times
+•AI Trip Summary: Claude-powered narrative combining all module data into a readable and exportable trip brief
+
+4.2 Out of Scope (v1.0)
+•In-app booking and payment processing
+•User accounts and trip history persistence (planned for v2)
+•Native mobile app (iOS/Android)
+•Visa and entry requirement checks
+•Live currency exchange rates and cost-of-living comparisons
+
+5. User Personas
+Persona	Profile	Key Needs
+Budget Backpacker	Age 22-30, first international trip, flexible dates, price-sensitive	Cheapest fares, hostel options, free attractions, best months to avoid peak pricing
+Family Planner	Age 35-50, traveling with children, values safety and convenience	Hotel proximity to attractions, kid-friendly itineraries, manageable daily schedule
+Business Traveler	Age 28-45, last-minute bookings, time-sensitive, expense-managed	Emergency cheapest flights, hotels near conference venues, efficient itineraries
+Experience Seeker	Age 25-40, prioritizes unique landscapes, culture, and photography spots	Landmark hours, off-season gems, nature vs. urban balance, scenic routes
+
+6. Feature Requirements
+6.1 Trip Planning Wizard
+The entry point of the application. Replaces the current static landing page hero section with an interactive multi-step form. All subsequent modules are triggered in parallel when the user submits this form.
+
+Required Input Fields
+•Origin city or airport with autocomplete (Google Places API)
+•Destination city with autocomplete (Google Places API)
+•Departure date via date picker, minimum selectable date is today
+•Return date via date picker, conditional on one-way vs. round-trip toggle
+•Trip duration in days, auto-calculated from dates or manually entered for flexible planning
+•Total budget in USD via slider with preset tiers: Budget under $1,500, Mid-Range $1,500-5,000, Luxury above $5,000
+•Number of travelers with separate adult and children counts
+•Travel preference tags as a multi-select: Beach, Mountains, Cities, Culture, Adventure, Food
+
+Behavior
+•Real-time inline validation with clear error messages on each field
+•3-step progress indicator: Destination, Dates & Budget, Preferences
+•Plan My Trip CTA fires parallel API calls to all five data modules simultaneously
+•Loading state shows per-module progress indicators as each API call resolves
+
+6.2 Flight Search Module
+Displays outbound and return flights in a card-based UI with complete airline, timing, and pricing details. Sorted by cheapest fare by default.
+
+Flight Card Display
+•Airline name and logo
+•Departure and arrival airport codes, city names, and terminals where available
+•Departure and arrival times in the local timezone of each city
+•Total flight duration including layover time and layover city
+•Number of stops with layover city name and connection duration
+•Cabin class: Economy, Business, or First
+•Price per person and total cost for all travelers combined
+•Book on [Airline or Partner] deep-link button
+
+Sorting and Filtering
+•Sort by: Cheapest, Fastest, or Best (balanced score of price and duration)
+•Filter by: maximum number of stops, preferred airline, departure time window, and maximum price
+
+Recommended APIs
+•Primary: Amadeus Flight Offers Search API (free tier: 2,000 requests/month, OAuth2 authentication)
+•Alternative: Skyscanner Flights Live Prices API via RapidAPI
+•Fallback: Google Flights results via SerpAPI
+
+6.3 Emergency Flight Panel
+A dedicated always-accessible panel for last-minute travel needs. Surfaces the three cheapest real-time available flights from the user's current or specified origin for same-day or next-day departure.
+
+•Trigger: Emergency Flight button visible in the app header at all times regardless of current wizard step
+•Inputs: current city (auto-detected via browser Geolocation API or manually entered), destination city, and travel date (Today or Tomorrow)
+•Results: top 3 cheapest options sorted by total price ascending
+•Each result shows: airline name, departure time, arrival time, total price, and number of seats remaining at that price
+•Book Now button deep-links directly to the airline or OTA partner checkout page
+•Target response time: 10 seconds or less
+•Uses the same Amadeus API credentials as standard flight search, with date constrained to today or tomorrow
+
+6.4 Hotel & Accommodation Finder
+Surfaces hotels near the destination's key landmarks, pre-filtered by the user's budget tier, with an embedded Google Maps view showing property pin locations.
+
+Hotel Card Display
+•Hotel name, star rating, and aggregated user review score
+•Walking or driving distance from city center or nearest top landmark
+•Price per night and total cost for the full trip duration
+•Thumbnail photo of the property
+•Top 3 amenities highlighted: options include WiFi, Pool, Breakfast Included, Free Cancellation, Gym, Parking
+•Availability status badge: Available, Limited Rooms, or Sold Out
+•View on Booking.com or partner deep-link button
+
+Filters
+•Budget tier auto-applied from wizard: Budget under $80/night, Mid-Range $80-200, Luxury above $200
+•Proximity radius slider: 1 km, 3 km, 5 km, or 10 km from selected landmark
+•Star rating multi-select: 1 through 5 stars
+
+Recommended APIs
+•Primary: Booking.com Affiliate API or Hotels.com via RapidAPI
+•Alternative: Amadeus Hotel Search API
+•Map: Google Maps JavaScript API with interactive hotel pins
+
+6.5 Best Season Advisor
+Provides month-by-month travel intelligence for the destination, helping users choose the optimal travel window relative to their budget, weather preferences, and tolerance for crowds.
+
+Display
+•12-month calendar heat map with each month color-coded: Green for ideal, Yellow for acceptable, Red for avoid
+•Per-month tooltip showing: average temperature range, rainfall or dry season status, crowd level estimate (Low, Medium, High, or Peak), and average flight price relative to the annual baseline
+•You selected [Month] callout comparing the user's chosen travel dates to the identified optimal travel window
+•Budget impact callout, for example: Traveling in August costs approximately 40% more in flights than April
+
+Data Sources
+•Weather history and forecasts: Open-Meteo API (free, no API key required) or WeatherAPI.com
+•Month-by-month flight price index: Amadeus Flight Inspiration Search API
+•Tourism seasonality context: supplemented by Claude AI synthesis using destination knowledge
+
+6.6 Itinerary Generator
+Produces a day-by-day itinerary incorporating real landmark data, current attraction opening hours from Google Places, admission cost estimates, and recommended visit durations.
+
+Per-Day Card Requirements
+•Day number and corresponding calendar date
+•Morning, Afternoon, and Evening segments each containing 1-2 recommended activities
+•Per activity: landmark or attraction name, category tag (Museum, Nature, Food, Shopping, or Nightlife), recommended visit duration, current opening hours, approximate admission cost, and Google Maps deep-link
+•Lunch and dinner restaurant suggestions near each activity cluster
+•Estimated daily spend covering activities and meals but excluding hotel and flight
+
+Day Allocation Logic
+•Trips 3 days or fewer: 2-3 major attractions per day, prioritized by user preference tags from the wizard
+•Trips 4-7 days: balanced mix of iconic landmarks and off-the-beaten-path discoveries
+•Trips over 7 days: includes day-trip suggestions to nearby cities or regions
+•One designated flexibility day recommended for any trip of 5 or more days
+
+Recommended APIs
+•Google Places API: attraction details, photos, real opening hours, and user ratings
+•Foursquare Places API: restaurant and nightlife recommendations
+•Claude AI via Anthropic API: activity sequencing, narrative generation, and travel tips
+
+6.7 AI Trip Summary (Claude Integration)
+The final output module. Synthesizes all collected data into a human-readable trip brief rendered within the app. This fully replaces the Botpress chatbot widget removed in Phase 0.
+
+•Input: all structured data from the five modules above — flights, hotels, season data, itinerary, and attraction hours
+•Output: a 3-5 paragraph trip narrative covering highlights, practical travel tips, a budget breakdown, and packing suggestions based on destination weather
+•Interactive follow-up: user can ask questions such as What if I extend by 2 days? or Find cheaper hotels and Claude refines specific modules in response
+•Streaming enabled: Claude API called with streaming so text appears progressively rather than in a single delayed block
+•Export: Download PDF button exports the complete plan as a formatted document
+•Share: Copy Link generates a shareable URL with trip parameters encoded in the query string — no authentication required in v1
+
+7. API Integration Plan
+Module	Primary API	Fallback API	Auth & Cost
+Flights	Amadeus Flight Offers Search	Skyscanner via RapidAPI	OAuth2 — Free 2K req/mo
+Emergency Flights	Amadeus (same key)	Google Flights via SerpAPI	Same Amadeus credentials
+Hotels	Booking.com Affiliate API	Amadeus Hotel Search	API Key — Revenue share
+Attraction Hours	Google Places API	Foursquare Places API	API Key — $200 credit/mo free
+Weather / Season	Open-Meteo (free, no key)	WeatherAPI.com	No key required
+Flight Price Index	Amadeus Flight Inspiration	Kayak API	Same Amadeus key
+Maps & Geocoding	Google Maps JavaScript API	Mapbox GL JS	API Key — $200 credit/mo free
+AI Summary & Chat	Anthropic Claude API	OpenAI GPT-4o	claude-sonnet-4-20250514
+Autocomplete	Google Places Autocomplete	Mapbox Geocoding API	Included in Maps key
+
+7.1 API Key Management
+•All API keys stored exclusively in environment variables and never committed to version control
+•A lightweight backend proxy (Node.js/Express or Next.js API routes) is required to prevent key exposure in the client bundle
+•Rate limiting middleware on the proxy to prevent API abuse from malicious or runaway clients
+•Response caching: flights cached 5 minutes, hotel results 15 minutes, attraction hours 24 hours
+•Graceful degradation: if any single API fails, that module shows an error card without blocking results from the other four modules
+
+8. Frontend Architecture Changes
+8.1 Modifications to Existing Files
+File	Required Change
+index.html	Remove all Botpress script tags. Keep the JetSet.AI title, favicon link, and viewport meta tag.
+src/App.tsx	Replace static layout with route-based rendering. Integrate TripPlannerWizard, ResultsDashboard, and EmergencyFlightPanel.
+src/index.css	Extend existing CSS variables. Add utility classes for cards, badges, skeleton loaders, and tabs. Preserve the existing dark color palette.
+src/App.css	Add layout rules for wizard steps, flight card grid, hotel grid, and the itinerary timeline.
+src/main.tsx	Wrap app in React Router BrowserRouter if react-router-dom is added to the project.
+
+8.2 New Components
+•TripPlannerWizard: multi-step form with step navigation, input validation, and progress bar
+•FlightCard: single flight result with all airline, timing, and pricing details
+•FlightSearchPanel: filterable and sortable grid of FlightCard components
+•EmergencyFlightPanel: modal or slide-in drawer component accessible from the header
+•HotelCard: hotel result with image, rating, price, amenities list, and map link
+•HotelSearchPanel: filterable grid of HotelCard components with budget and proximity filters
+•SeasonAdvisor: 12-month heat map calendar with per-month tooltip overlays
+•ItineraryTimeline: vertical day-by-day timeline layout with day header cards
+•ActivityCard: single attraction with opening hours, admission cost, and Google Maps deep-link
+•AiSummaryPanel: Claude streaming text output with follow-up input, PDF export, and share button
+•ResultsDashboard: tabbed container that organizes all five result modules
+•SkeletonLoader: animated loading placeholders matching the shape of each card type
+
+8.3 Recommended New Dependencies
+•react-router-dom: client-side routing between wizard and results dashboard
+•@tanstack/react-query: API state management, caching, and background refetch
+•axios: HTTP client for backend proxy API calls
+•date-fns: date formatting, parsing, and comparison utilities
+•react-datepicker: accessible date picker for the wizard
+•@googlemaps/react-wrapper: Google Maps embed component wrapper
+•framer-motion: smooth animated transitions between wizard steps
+
+9. User Flows
+9.1 Standard Trip Planning Flow
+6.User lands on the JetSet.AI homepage and sees the hero section with the Plan My Trip CTA
+7.User fills the 3-step Trip Planning Wizard: Step 1 is Origin and Destination, Step 2 is Dates and Budget, Step 3 is Travel Preferences
+8.User clicks Plan My Trip and all five module API calls fire in parallel simultaneously
+9.Results Dashboard loads with animated skeleton placeholders that are progressively replaced by real data as each API resolves
+10.User browses the Flights tab, views outbound and return options, applies sort and filter controls, and clicks through to book externally
+11.User browses the Hotels tab, views options near landmarks sorted by budget tier, and interacts with the embedded map
+12.User views the Best Season tab, reviews the 12-month heat map, and compares their chosen travel dates to the recommended optimal window
+13.User views the Itinerary tab, reviews the day-by-day plan with attraction hours and meal suggestions, and adjusts preferences if desired
+14.User reads the AI Trip Summary, asks follow-up refinement questions, and receives updated recommendations
+15.User exports the full plan as a PDF or copies the shareable link
+
+9.2 Emergency Flight Flow
+16.User clicks the Emergency Flight button in the app header, which is visible at all times regardless of current step
+17.The Emergency panel opens as a modal: user confirms or manually enters current city and destination
+18.User selects travel date: Today or Tomorrow
+19.System queries Amadeus for cheapest same-day or next-day fares within a 10-second target
+20.Top 3 cheapest options are displayed with price, departure time, arrival time, and seats remaining
+21.User clicks Book Now and is deep-linked to the airline or OTA booking page
+
+10. Non-Functional Requirements
+10.1 Performance
+•Largest Contentful Paint: 2.5 seconds or less on a 4G connection
+•Time to Interactive: 4 seconds or less
+•Full trip plan response via parallel API calls: 30 seconds or less
+•Emergency flight lookup: 10 seconds or less
+
+10.2 Reliability
+•Each API module must degrade gracefully — a failure in one shows an error card without blocking the others
+•API request timeout: 15 seconds per call with one automatic retry on timeout
+•Cached responses served if the live API is unavailable, with a data-age indicator badge
+
+10.3 Security
+•All API keys stored server-side only and never exposed in the frontend JavaScript bundle
+•Backend proxy validates and sanitizes all user inputs before forwarding to third-party APIs
+•HTTPS enforced in production (Vercel handles this automatically for all deployments)
+•No personally identifiable information stored in v1
+
+10.4 Accessibility
+•WCAG 2.1 AA compliance — all interactive elements must be fully keyboard-navigable
+•ARIA labels on all icon-only buttons including the Emergency Flight header button
+•Minimum 4.5:1 color contrast ratio throughout (the existing dark theme requires minor color adjustments to be fully compliant)
+
+10.5 Browser and Device Support
+•Browsers: Chrome 100+, Firefox 100+, Safari 15+, Edge 100+
+•Devices: Mobile 375px and above, Tablet 768px and above, Desktop 1024px and above
+•All new components must use the responsive breakpoints already established in the existing index.css
+
+11. Implementation Phases
+Phase	Focus	Key Deliverables	Duration
+Phase 0	Setup & Cleanup	Remove Botpress scripts, install new dependencies, create backend proxy scaffold, configure .env structure	1 week
+Phase 1	Flight Search	TripPlannerWizard, FlightSearchPanel, FlightCard, Amadeus integration, skeleton loaders	2 weeks
+Phase 2	Hotels & Maps	HotelSearchPanel, HotelCard, Google Maps embed, Booking.com API, budget filtering	2 weeks
+Phase 3	Season & Itinerary	SeasonAdvisor heat map, ItineraryTimeline, ActivityCard, Google Places API for hours and ratings	2 weeks
+Phase 4	AI & Emergency	AiSummaryPanel with Claude streaming, EmergencyFlightPanel, PDF export, shareable link generation	2 weeks
+Phase 5	Polish & QA	Responsive design pass, error states, performance optimization, accessibility audit, staging deployment	1 week
+
+Total estimated timeline: 10 weeks for a solo developer or 5-6 weeks for a 2-person team running Phase 1 through Phase 4 in parallel tracks.
+
+12. Open Questions & Decisions Needed
+22.Backend technology: Should the API proxy be a standalone Node.js/Express server or should the project migrate to Next.js for simpler API routes and SSR benefits for SEO?
+23.Deployment architecture: If a dedicated backend is added, will it use Vercel Serverless Functions alongside the existing Vercel frontend deployment, or a separate service such as Railway or Render?
+24.Amadeus API scale: The free tier provides 2,000 requests per month, which is sufficient for MVP validation. A paid tier at approximately $0.01 per call should be budgeted once traffic grows.
+25.Google Maps billing: The $200/month free credit covers approximately 28,000 map loads. Billing must be enabled and budget caps configured before any production traffic.
+26.Trip plan persistence: Should shareable plan URLs persist long-term via a lightweight database such as Supabase or Firebase, or expire after 24 hours using URL-encoded query string parameters only?
+27.Internationalization: Should prices be displayed in the user's local currency using a live exchange rate API, and if so should this be delivered in Phase 2 or deferred to v2?
+
+13. Appendix: Existing Codebase Summary
+13.1 Current Tech Stack
+•Framework: React 18 with TypeScript
+•Build tool: Vite
+•Styling: Custom CSS (index.css and App.css) with CSS custom properties for the design token system
+•Icons: lucide-react (Plane, MessageSquare, Calendar, Map, Navigation icons in use)
+•Chatbot (TO BE REMOVED): Botpress Web Chat v2.2 injected via script tag in index.html, botId ab6d6dce-5742-4ec9-a83d-afd80506b8c6
+•Deployment: Vercel, project.json configuration file is present and active
+
+13.2 Existing Color System (to be Preserved in All New Components)
+CSS Variable	Hex Value	Usage
+--primary-color	#2563eb	Buttons, CTAs, active states, accents
+--background-color	#0f172a	App background gradient start
+--surface-color	#1e293b	Card and panel backgrounds
+--text-color	#e2e8f0	Primary body and heading text
+--text-light	#94a3b8	Secondary and descriptive text
+--border-color	#334155	Card borders and horizontal dividers
+
+End of Document
+JetSet.AI Product Requirements Document v1.0  |  March 2026  |  Confidential

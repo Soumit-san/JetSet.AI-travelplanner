@@ -1,0 +1,70 @@
+Gemini said
+Technical Stack Specification Document
+Project: Comprehensive Travel Planning Application
+Core Language: TypeScript (End-to-End)
+Document Version: 1.0
+
+1. Project Overview
+A full-suite travel planning application designed to generate end-to-end itineraries. The system handles complex business logic including real-time flight and hotel pricing, geospatial proximity searches, weather-based seasonality recommendations, and automated AI-driven scheduling.
+
+2. Architecture Overview
+The platform utilizes a decoupled client-server architecture. The frontend handles UI rendering and state management, while a robust backend orchestrates multiple third-party API aggregations, geospatial database queries, and background queues for real-time price monitoring.
+
+3. Frontend Architecture (Client-Side)
+The user interface is optimized for speed, accessibility, and complex data visualization (calendars, maps, itineraries).
+
+Component	Technology	Rationale
+Framework	Next.js (React)	Enables Server-Side Rendering (SSR) for fast initial load times and strong SEO for travel-related search queries.
+Styling	Tailwind CSS	Utility-first framework for rapid, responsive UI development.
+UI Components	shadcn/ui	Provides accessible, highly customizable foundational components (date pickers, sliders, modals) without adding bloat.
+State Management	React Query (TanStack)	Handles asynchronous data fetching, automatic caching, and loading states for API-heavy interactions.
+4. Backend Architecture (Server-Side)
+The backend acts as an orchestrator, processing heavy business logic and managing external API rate limits.
+
+Component	Technology	Rationale
+Framework	NestJS (Node.js)	Enforces a scalable, enterprise-grade architecture. Natively supports TypeScript and handles complex routing seamlessly.
+ORM	Prisma or Drizzle	Provides strict end-to-end type safety between the database and the application layer, preventing runtime errors.
+Job Queue	BullMQ	Essential for background processing, specifically monitoring emergency flight price drops and asynchronous API polling.
+5. Data Layer (Database & Caching)
+The application requires highly relational data storage and rapid retrieval for frequently searched routes.
+
+Primary Database: PostgreSQL
+
+Extension: PostGIS. Crucial for geospatial querying (e.g., finding hotels within a specific radius of a tourist attraction or calculating distances between waypoints).
+
+In-Memory Store: Redis
+
+Used for caching high-volume, repetitive API responses (e.g., standard flight routes or historical weather data) to reduce third-party API costs and improve response times. Also powers the background job queues.
+
+6. Third-Party Integrations (The Data Engine)
+The core value of the application relies on aggregating and processing data from specialized external providers.
+
+Booking & Pricing Services
+Flights & Hotels: Amadeus API or Duffel API
+
+Provides real-time flight availability, dynamic pricing, and emergency fare lookups.
+
+Location & Environment Services
+Mapping & POIs: Google Places API
+
+Supplies accurate geocodes, operating hours (open/close timings), and user ratings for landscapes and attractions.
+
+Climate & Seasonality: Visual Crossing API or OpenWeatherMap
+
+Fetches historical climate data to cross-reference with user budgets and determine the "perfect season" to travel.
+
+AI & Processing
+Planning Engine: Google Gemini API or OpenAI API
+
+Processes the aggregated raw data (flights, weather, places) alongside user constraints (budget, days) to generate a structured, optimized daily itinerary in JSON format.
+
+7. System Data Flow
+Input Submission: The user submits travel constraints via the Next.js client.
+
+Request Handling: The NestJS backend receives the payload and checks Redis for cached itineraries matching the exact criteria.
+
+Data Aggregation: If no cache exists, the backend concurrently queries Amadeus (flights/hotels), Google Places (timings), and weather APIs.
+
+AI Orchestration: The raw data and constraints are formatted into a prompt and sent to the LLM to structure the day-by-day plan.
+
+Persistence & Delivery: The backend saves the generated itinerary to PostgreSQL, caches the result in Redis, and serves the finalized plan back to the frontend.

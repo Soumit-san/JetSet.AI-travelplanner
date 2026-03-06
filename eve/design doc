@@ -1,0 +1,465 @@
+JetSet.AI — UI/UX Design Document
+
+Version: 1.0
+Theme: Liquid Glass + Glassmorphism (Dark Immersive UI)
+Tech Stack: React + TypeScript + Vite
+
+1. Design Philosophy
+
+JetSet AI uses a Liquid Glass design system that combines glassmorphism, depth, and motion to create a futuristic travel planning interface.
+
+The design focuses on:
+
+Liquid Glass UI
+
+All UI elements behave like frosted translucent glass with layered blur and glow effects.
+
+Properties:
+
+translucency
+
+blur
+
+soft borders
+
+glowing highlights
+
+Deep Space Visual Style
+
+The interface uses dark navy backgrounds with glowing accents to represent global travel at night.
+
+Visual inspiration:
+
+satellite imagery
+
+city lights
+
+aurora colors
+
+Progressive Information Reveal
+
+Travel information appears progressively as the AI generates the trip.
+
+Examples:
+
+staggered itinerary cards
+
+streaming AI responses
+
+skeleton loading states
+
+2. Color System
+
+The color palette is built on a deep ink background with electric blue accents.
+
+Core Background Colors
+Name	Hex
+Ink 900	#040B18
+Ink 800	#080F1F
+Ink 700	#0C1528
+Ink 600	#0F172A
+Ink 500	#1A2540
+
+These colors form the base layout surfaces.
+
+Primary Brand Colors
+Color	Hex	Usage
+Sky Vivid	#38BDF8	CTA highlights
+Sky Pure	#2563EB	buttons
+Sky Deep	#1D4ED8	hover states
+Sky Glow	#60A5FA	focus rings
+Accent Colors
+
+These colors represent semantic meaning in the UI.
+
+Color	Hex	Usage
+Cyan	#06B6D4	flight search
+Violet	#8B5CF6	AI planner
+Amber	#F59E0B	budget deals
+Emerald	#10B981	availability
+Pink	#F472B6	premium features
+Red	#EF4444	errors
+3. Typography System
+
+The UI uses three font families.
+
+Display Font
+
+Syne
+
+Used for:
+
+hero titles
+
+section headers
+
+dashboard headings
+
+Example:
+
+Explore the World
+Body Font
+
+DM Sans
+
+Used for:
+
+descriptions
+
+travel details
+
+UI labels
+
+Example:
+
+Let our AI travel assistant help you create unforgettable journeys.
+Monospace Font
+
+JetBrains Mono
+
+Used for:
+
+time
+
+prices
+
+airport codes
+
+numerical data
+
+Example:
+
+09:45 → 16:20 · JFK → CDG · $487
+4. Liquid Glass UI Components
+
+Liquid glass elements simulate layered transparent surfaces.
+
+Base Glass Layer
+background: rgba(255,255,255,0.07)
+border: 1px solid rgba(255,255,255,0.14)
+backdrop-filter: blur(20px)
+box-shadow: 0 8px 32px rgba(0,0,0,0.45)
+
+Used for:
+
+cards
+
+panels
+
+search inputs
+
+sidebars
+
+5. Liquid Glass Buttons
+
+Buttons are the core interaction component of the design system.
+
+Each button contains:
+
+glass base
+
+inner gradient shimmer
+
+light reflection overlay
+
+glow shadow
+
+Primary Button
+
+Used for:
+
+search
+
+booking
+
+AI planner
+
+Visual:
+
+blue gradient
+
+glow shadow
+
+glass blur
+
+Example:
+
+✈ Book Flight
+Secondary Button
+
+Used for secondary actions.
+
+Visual:
+
+translucent glass
+
+white borders
+
+minimal glow
+
+Example:
+
+More Options
+Special Buttons
+Button	Use
+Cyan	Search
+Violet	AI Planner
+Amber	Best Deal
+Danger	Cancel
+6. Form Inputs
+
+Input components follow the same glass design.
+
+Properties:
+
+background: rgba(255,255,255,0.07)
+border: 1px solid rgba(255,255,255,0.14)
+backdrop-filter: blur(16px)
+
+Features:
+
+icon support
+
+focus glow
+
+placeholder transparency
+
+Example inputs:
+
+Destination
+Budget
+Travel Dates
+Travelers
+7. Cards & Surfaces
+
+Cards display travel information.
+
+All cards follow the Glass Card Pattern.
+
+background: glass
+border-radius: 20px
+blur: 20px
+shadow: soft
+
+Types of cards:
+
+Flight Card
+
+Displays:
+
+airline
+
+route
+
+time
+
+price
+
+Hotel Card
+
+Displays:
+
+image
+
+hotel name
+
+location
+
+rating
+
+price per night
+
+Deal Card
+
+Shows best travel deals.
+
+8. Itinerary Components
+
+The itinerary uses a timeline card system.
+
+Each day is represented by:
+
+Day Card
+ ├ Header
+ ├ Activities
+ └ Time schedule
+
+Example:
+
+Day 1 — Arrival in Paris
+09:00 Airport arrival
+11:00 Hotel check-in
+14:00 Eiffel Tower
+18:00 Seine River cruise
+
+Activity tags show status:
+
+Tag	Meaning
+Open	attraction open
+Closed	unavailable
+Popular	high traffic
+9. Budget Dashboard
+
+A donut chart visualizes travel budget distribution.
+
+Categories:
+
+flights
+
+hotels
+
+food
+
+activities
+
+transport
+
+Center label:
+
+Total Budget: $1500
+10. Spacing System
+
+Spacing scale:
+
+Token	Size
+s1	4px
+s2	8px
+s3	12px
+s4	16px
+s5	20px
+s6	24px
+s7	32px
+s8	40px
+s9	48px
+11. Radius System
+
+Border radius tokens:
+
+Token	Size
+r-sm	8px
+r-md	14px
+r-lg	20px
+r-xl	28px
+pill	999px
+
+Used for:
+
+buttons
+
+cards
+
+inputs
+
+badges
+
+12. Motion & Animations
+
+Animations guide user attention.
+
+Examples:
+
+Hover Lift
+transform: translateY(-3px)
+Button Ripple
+
+light shimmer animation
+
+Card Reveal
+
+staggered fade-in animation.
+
+Timing:
+
+fast: 150ms
+medium: 280ms
+slow: 500ms
+13. Screen Layouts
+
+The UI is structured into three main screens.
+
+Landing Page
+
+Contains:
+
+hero background
+
+AI trip planner
+
+destination search
+
+Results Dashboard
+
+Shows:
+
+Flights
+Hotels
+Itinerary
+Budget
+Attractions
+
+All rendered as glass cards.
+
+Trip Details Page
+
+Displays:
+
+full itinerary
+
+maps
+
+bookings
+
+hotel details
+
+14. Accessibility
+
+The design ensures WCAG accessibility.
+
+Measures:
+
+high contrast text
+
+large clickable buttons
+
+keyboard navigation
+
+focus indicators
+
+15. CSS Design Tokens
+
+All design values are centralized in CSS variables.
+
+Example:
+
+--glass-bg
+--sky-vivid
+--ink-900
+--r-lg
+--dur-fast
+
+This allows easy theming.
+
+16. Responsive Design
+
+Breakpoints:
+
+Device	Width
+Desktop	>1200px
+Tablet	768px
+Mobile	<480px
+
+Mobile layout stacks cards vertically.
+
+17. Design Deliverables
+
+The design system includes:
+
+component library
+
+CSS token system
+
+motion guidelines
+
+UI layout wireframes
+
+These elements allow consistent implementation across the entire JetSet platform.
