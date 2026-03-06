@@ -50,8 +50,14 @@ export default function TripWizard() {
     });
 
     const onSubmit = async (data: TripFormValues) => {
-        // API Call Mock later
+        // TODO: [TASK-1] Implement real API integration for Trip Planning Submission
+        // 1. Endpoint: POST `/api/trip-plan` or equivalent NestJS/NextRoute.
+        // 2. Payload Shape: Sanitize `data` (e.g., convert dataRange dates to ISO strings).
+        // 3. Form State: Set a loading state variable to disable the submit button and show a spinner.
+        // 4. On Success: Navigate user to the Results Dashboard (`/results/:id`) populated with initial skeleton loaders.
+        // 5. On Failure: Catch error, toggle loading off, and show a destructive toast notification to the user.
         console.log("Form Submitted:", data);
+        // e.g. await submitTripForm(data);
     };
 
     const nextStep = async () => {

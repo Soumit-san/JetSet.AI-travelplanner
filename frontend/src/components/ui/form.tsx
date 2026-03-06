@@ -47,8 +47,12 @@ const useFormField = () => {
   const itemContext = React.useContext(FormItemContext)
   const { getFieldState } = useFormContext()
 
-  if (!fieldContext) {
+  if (!fieldContext?.name) {
     throw new Error("useFormField should be used within <FormField>")
+  }
+
+  if (!itemContext || !itemContext.id) {
+    throw new Error("useFormField should be used within <FormItem>")
   }
 
   const formState = useFormState({ name: fieldContext.name })
