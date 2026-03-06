@@ -22,6 +22,8 @@ export const metadata: Metadata = {
   description: "AI-Powered Travel Companion for seamless and intelligent trip planning.",
 };
 
+import Providers from "./providers";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -32,7 +34,9 @@ export default function RootLayout({
       <body
         className={`${syne.variable} ${dmSans.variable} ${jetbrainsMono.variable} antialiased font-sans bg-ink-900 text-white min-h-screen flex flex-col`}
       >
-        {children}
+        <Providers>
+          {children}
+        </Providers>
       </body>
     </html>
   );
