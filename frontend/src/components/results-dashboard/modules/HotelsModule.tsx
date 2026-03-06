@@ -1,10 +1,7 @@
 "use client";
 
 import SkeletonLoader from "../SkeletonLoader";
-
-interface ModuleProps {
-    tripId: string;
-}
+import { ModuleProps } from "./types";
 
 export default function HotelsModule({ tripId }: ModuleProps) {
     const isLoading = true;

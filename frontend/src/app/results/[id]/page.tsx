@@ -1,15 +1,15 @@
 import ResultsDashboard from "@/components/results-dashboard/ResultsDashboard";
 
-export default function ResultsPage({ params }: { params: { id: string } }) {
-    // In the future:
-    // 1. Fetch trip data server-side using params.id OR
-    // 2. Pass params.id to the client component to hydrate TanStack Query
+export default async function ResultsPage({ params }: { params: Promise<{ id: string }> }) {
+    // 1. Await Next.js 15 dynamic params
+    const resolvedParams = await params;
+    const tripId = resolvedParams.id;
 
     return (
         <main className="min-h-screen bg-background relative overflow-hidden flex flex-col items-center py-10 px-4 sm:px-6 lg:px-8">
             {/* Background Glow Effects */}
-            <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-sky-deep/10 blur-[120px] pointer-events-none fixed" />
-            <div className="absolute top-[40%] right-[-10%] w-[30%] h-[30%] rounded-full bg-violet-600/10 blur-[120px] pointer-events-none fixed" />
+            <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-sky-deep/10 blur-[120px] pointer-events-none" />
+            <div className="absolute top-[40%] right-[-10%] w-[30%] h-[30%] rounded-full bg-violet-600/10 blur-[120px] pointer-events-none" />
 
             <div className="w-full max-w-6xl z-10 space-y-8">
                 {/* Header Area */}
@@ -38,7 +38,7 @@ export default function ResultsPage({ params }: { params: { id: string } }) {
                 </div>
 
                 {/* Dashboard Client Component */}
-                <ResultsDashboard tripId={params.id} />
+                <ResultsDashboard tripId={tripId} />
             </div>
         </main>
     );

@@ -30,7 +30,7 @@ export default function ResultsDashboard({ tripId }: ResultsDashboardProps) {
     return (
         <div className="w-full flex justify-center">
             <Tabs
-                defaultValue="summary"
+                value={activeTab}
                 onValueChange={(v) => setActiveTab(v)}
                 className="w-full relative"
             >

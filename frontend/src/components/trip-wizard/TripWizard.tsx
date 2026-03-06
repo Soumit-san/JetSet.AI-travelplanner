@@ -31,6 +31,8 @@ export const tripFormSchema = z.object({
 
 export type TripFormValues = z.infer<typeof tripFormSchema>;
 
+const generatePlaceholderId = () => `trip-${Date.now()}-${Math.random().toString(36).substring(7)}`;
+
 export default function TripWizard() {
     const [step, setStep] = useState(1);
     const totalSteps = 3;
@@ -60,8 +62,9 @@ export default function TripWizard() {
         // 5. On Failure: Catch error, toggle loading off, and show a destructive toast notification to the user.
         console.log("Form Submitted:", data);
 
-        // Mock Redirect for UI verification:
-        router.push("/results/demo-trip-id-123!");
+        // Mock Redirect for UI verification using a distinct timestamp UUID
+        const placeholderId = generatePlaceholderId();
+        router.push(`/results/${placeholderId}`);
     };
 
     const nextStep = async () => {
