@@ -1,0 +1,107 @@
+﻿[32m[Nest] 25848  - [39m06/03/2026, 10:13:10 pm [32m    LOG[39m [38;5;3m[NestFactory] [39m[32mStarting Nest application...[39m
+[32m[Nest] 25848  - [39m06/03/2026, 10:13:10 pm [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mTypeOrmModule dependencies initialized[39m[38;5;3m +14ms[39m
+[32m[Nest] 25848  - [39m06/03/2026, 10:13:10 pm [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mConfigHostModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 25848  - [39m06/03/2026, 10:13:10 pm [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mHttpModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 25848  - [39m06/03/2026, 10:13:10 pm [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAppModule dependencies initialized[39m[38;5;3m +2ms[39m
+[32m[Nest] 25848  - [39m06/03/2026, 10:13:10 pm [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mConfigModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 25848  - [39m06/03/2026, 10:13:10 pm [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mConfigModule dependencies initialized[39m[38;5;3m +0ms[39m
+node : [31m[Nest] 
+25848  - 
+[39m06/03/2026, 
+10:13:10 pm [31m  
+ERROR[39m [38;5;3m[E
+xceptionHandler] 
+[39mTypeError: Keyv 
+is not a constructor
+At line:1 char:1
++ node dist/main.js > 
+error.txt 2>&1
++ ~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~
+    + CategoryInfo    
+          : NotSpeci  
+  fied: ([31m[Nest   
+ ] 258...t a const    
+ructor:String) []    
+, RemoteException
+    + FullyQualifiedE 
+   rrorId : NativeCo  
+  mmandError
+ 
+    at InstanceWrapper
+.useFactory [as 
+metatype] [90m(C:\Use
+rs\KIIT0001\JetSet\Jet
+Set.AI-travelplanner\b
+ackend\[39mdist\app.m
+odule.js:76:34[90m)[
+39m
+    at Injector.instan
+tiateClass [90m(C:\Us
+ers\KIIT0001\JetSet\Je
+tSet.AI-travelplanner\
+backend\[39mnode_modu
+les\[4m@nestjs\core[
+24m\injector\injector.
+js:427:55[90m)[39m
+    at callback [90m(
+C:\Users\KIIT0001\JetS
+et\JetSet.AI-travelpla
+nner\backend\[39mnode
+_modules\[4m@nestjs\c
+ore[24m\injector\inje
+ctor.js:70:45[90m)[3
+9m
+    at async Injector.
+resolveConstructorPara
+ms [90m(C:\Users\KIIT
+0001\JetSet\JetSet.AI-
+travelplanner\backend\
+[39mnode_modules\[4m
+@nestjs\core[24m\inje
+ctor\injector.js:170:2
+4[90m)[39m
+    at async 
+Injector.loadInstance 
+[90m(C:\Users\KIIT000
+1\JetSet\JetSet.AI-tra
+velplanner\backend\[3
+9mnode_modules\[4m@ne
+stjs\core[24m\injecto
+r\injector.js:75:13[9
+0m)[39m
+    at async 
+Injector.loadProvider 
+[90m(C:\Users\KIIT000
+1\JetSet\JetSet.AI-tra
+velplanner\backend\[3
+9mnode_modules\[4m@ne
+stjs\core[24m\injecto
+r\injector.js:103:9[9
+0m)[39m
+    at async [90mC:\U
+sers\KIIT0001\JetSet\J
+etSet.AI-travelplanner
+\backend\[39mnode_mod
+ules\[4m@nestjs\core
+[24m\injector\instance
+-loader.js:56:13
+    at async 
+Promise.all (index 5)
+    at async InstanceL
+oader.createInstancesO
+fProviders [90m(C:\Us
+ers\KIIT0001\JetSet\Je
+tSet.AI-travelplanner\
+backend\[39mnode_modu
+les\[4m@nestjs\core[
+24m\injector\instance-
+loader.js:55:9[90m)[
+39m
+    at async [90mC:\U
+sers\KIIT0001\JetSet\J
+etSet.AI-travelplanner
+\backend\[39mnode_mod
+ules\[4m@nestjs\core
+[24m\injector\instance
+-loader.js:40:13

@@ -1,0 +1,273 @@
+﻿[32m[Nest] 5452  - [39m06/03/2026, 10:17:56 pm [32m    LOG[39m [38;5;3m[NestFactory] [39m[32mStarting Nest application...[39m
+[32m[Nest] 5452  - [39m06/03/2026, 10:17:56 pm [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mTypeOrmModule dependencies initialized[39m[38;5;3m +12ms[39m
+[32m[Nest] 5452  - [39m06/03/2026, 10:17:56 pm [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mConfigHostModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 5452  - [39m06/03/2026, 10:17:56 pm [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mHttpModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 5452  - [39m06/03/2026, 10:17:56 pm [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAppModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 5452  - [39m06/03/2026, 10:17:56 pm [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mConfigModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 5452  - [39m06/03/2026, 10:17:56 pm [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mConfigModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 5452  - [39m06/03/2026, 10:17:56 pm [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mCacheModule dependencies initialized[39m[38;5;3m +74ms[39m
+[32m[Nest] 5452  - [39m06/03/2026, 10:17:56 pm [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mDestinationsModule dependencies initialized[39m[38;5;3m +1ms[39m
+node : [31m[Nest] 
+5452  - 
+[39m06/03/2026, 
+10:17:56 pm [31m  
+ERROR[39m [38;5;3m[T
+ypeOrmModule] 
+[39m[31mUnable to 
+connect to the 
+database. Retrying 
+(1)...[39m
+At line:1 char:1
++ node dist/main.js > 
+error2.txt 2>&1 ; 
+node -e "const fs = 
+require('fs ...
++ ~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~
+    + CategoryInfo    
+          : 
+NotSpecified: (    
+[31m[Nest] 545...ing  
+   
+(1)...[39m:String) [ 
+   ], RemoteException
+    + 
+FullyQualifiedError   
+ Id : 
+NativeCommandErr    or
+ 
+Error: self-signed 
+certificate in 
+certificate chain
+    at TLSSocket.onCon
+nectSecure (node:_tls_
+wrap:1695:34)
+    at TLSSocket.emit 
+(node:events:524:28)
+    at 
+TLSSocket._finishInit 
+(node:_tls_wrap:1093:8
+)
+    at 
+ssl.onhandshakedone (n
+ode:_tls_wrap:879:12)
+[31m[Nest] 5452  - 
+[39m06/03/2026, 
+10:18:00 pm [31m  
+ERROR[39m [38;5;3m[T
+ypeOrmModule] 
+[39m[31mUnable to 
+connect to the 
+database. Retrying 
+(2)...[39m
+Error: self-signed 
+certificate in 
+certificate chain
+    at TLSSocket.onCon
+nectSecure (node:_tls_
+wrap:1695:34)
+    at TLSSocket.emit 
+(node:events:524:28)
+    at 
+TLSSocket._finishInit 
+(node:_tls_wrap:1093:8
+)
+    at 
+ssl.onhandshakedone (n
+ode:_tls_wrap:879:12)
+[31m[Nest] 5452  - 
+[39m06/03/2026, 
+10:18:03 pm [31m  
+ERROR[39m [38;5;3m[T
+ypeOrmModule] 
+[39m[31mUnable to 
+connect to the 
+database. Retrying 
+(3)...[39m
+Error: self-signed 
+certificate in 
+certificate chain
+    at TLSSocket.onCon
+nectSecure (node:_tls_
+wrap:1695:34)
+    at TLSSocket.emit 
+(node:events:524:28)
+    at 
+TLSSocket._finishInit 
+(node:_tls_wrap:1093:8
+)
+    at 
+ssl.onhandshakedone (n
+ode:_tls_wrap:879:12)
+[31m[Nest] 5452  - 
+[39m06/03/2026, 
+10:18:06 pm [31m  
+ERROR[39m [38;5;3m[T
+ypeOrmModule] 
+[39m[31mUnable to 
+connect to the 
+database. Retrying 
+(4)...[39m
+Error: self-signed 
+certificate in 
+certificate chain
+    at TLSSocket.onCon
+nectSecure (node:_tls_
+wrap:1695:34)
+    at TLSSocket.emit 
+(node:events:524:28)
+    at 
+TLSSocket._finishInit 
+(node:_tls_wrap:1093:8
+)
+    at 
+ssl.onhandshakedone (n
+ode:_tls_wrap:879:12)
+[31m[Nest] 5452  - 
+[39m06/03/2026, 
+10:18:10 pm [31m  
+ERROR[39m [38;5;3m[T
+ypeOrmModule] 
+[39m[31mUnable to 
+connect to the 
+database. Retrying 
+(5)...[39m
+Error: self-signed 
+certificate in 
+certificate chain
+    at TLSSocket.onCon
+nectSecure (node:_tls_
+wrap:1695:34)
+    at TLSSocket.emit 
+(node:events:524:28)
+    at 
+TLSSocket._finishInit 
+(node:_tls_wrap:1093:8
+)
+    at 
+ssl.onhandshakedone (n
+ode:_tls_wrap:879:12)
+[31m[Nest] 5452  - 
+[39m06/03/2026, 
+10:18:13 pm [31m  
+ERROR[39m [38;5;3m[T
+ypeOrmModule] 
+[39m[31mUnable to 
+connect to the 
+database. Retrying 
+(6)...[39m
+Error: self-signed 
+certificate in 
+certificate chain
+    at TLSSocket.onCon
+nectSecure (node:_tls_
+wrap:1695:34)
+    at TLSSocket.emit 
+(node:events:524:28)
+    at 
+TLSSocket._finishInit 
+(node:_tls_wrap:1093:8
+)
+    at 
+ssl.onhandshakedone (n
+ode:_tls_wrap:879:12)
+[31m[Nest] 5452  - 
+[39m06/03/2026, 
+10:18:17 pm [31m  
+ERROR[39m [38;5;3m[T
+ypeOrmModule] 
+[39m[31mUnable to 
+connect to the 
+database. Retrying 
+(7)...[39m
+Error: self-signed 
+certificate in 
+certificate chain
+    at TLSSocket.onCon
+nectSecure (node:_tls_
+wrap:1695:34)
+    at TLSSocket.emit 
+(node:events:524:28)
+    at 
+TLSSocket._finishInit 
+(node:_tls_wrap:1093:8
+)
+    at 
+ssl.onhandshakedone (n
+ode:_tls_wrap:879:12)
+[31m[Nest] 5452  - 
+[39m06/03/2026, 
+10:18:20 pm [31m  
+ERROR[39m [38;5;3m[T
+ypeOrmModule] 
+[39m[31mUnable to 
+connect to the 
+database. Retrying 
+(8)...[39m
+Error: self-signed 
+certificate in 
+certificate chain
+    at TLSSocket.onCon
+nectSecure (node:_tls_
+wrap:1695:34)
+    at TLSSocket.emit 
+(node:events:524:28)
+    at 
+TLSSocket._finishInit 
+(node:_tls_wrap:1093:8
+)
+    at 
+ssl.onhandshakedone (n
+ode:_tls_wrap:879:12)
+[31m[Nest] 5452  - 
+[39m06/03/2026, 
+10:18:23 pm [31m  
+ERROR[39m [38;5;3m[T
+ypeOrmModule] 
+[39m[31mUnable to 
+connect to the 
+database. Retrying 
+(9)...[39m
+Error: self-signed 
+certificate in 
+certificate chain
+    at TLSSocket.onCon
+nectSecure (node:_tls_
+wrap:1695:34)
+    at TLSSocket.emit 
+(node:events:524:28)
+    at 
+TLSSocket._finishInit 
+(node:_tls_wrap:1093:8
+)
+    at 
+ssl.onhandshakedone (n
+ode:_tls_wrap:879:12)
+[31m[Nest] 5452  - 
+[39m06/03/2026, 
+10:18:23 pm [31m  
+ERROR[39m [38;5;3m[E
+xceptionHandler] 
+[39mError: 
+self-signed 
+certificate in 
+certificate chain
+[90m    at TLSSocket.
+onConnectSecure (node:
+_tls_wrap:1695:34)[39
+m
+[90m    at 
+TLSSocket.emit (node:e
+vents:524:28)[39m
+[90m    at 
+TLSSocket._finishInit 
+(node:_tls_wrap:1093:8
+)[39m
+[90m    at 
+ssl.onhandshakedone (n
+ode:_tls_wrap:879:12)
+[39m {
+  code: [32m'SELF_SIG
+NED_CERT_IN_CHAIN'[39
+m
+}

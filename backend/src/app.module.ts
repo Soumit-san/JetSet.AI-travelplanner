@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CacheModule } from '@nestjs/cache-manager';
 import { Redis } from '@upstash/redis';
+import Keyv from 'keyv';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { DestinationsModule } from './destinations/destinations.module';
@@ -21,8 +22,8 @@ import { DestinationsModule } from './destinations/destinations.module';
           url: configService.get<string>('DATABASE_URL'),
           autoLoadEntities: true,
           synchronize: isDev, // Safe config switch
-          ssl: isDev ? false : {
-            rejectUnauthorized: true,
+          ssl: {
+            rejectUnauthorized: false,
           },
         };
       },
@@ -34,7 +35,6 @@ import { DestinationsModule } from './destinations/destinations.module';
       useFactory: async (configService: ConfigService) => {
         const redisUrl = configService.get<string>('UPSTASH_REDIS_REST_URL');
         const redisToken = configService.get<string>('UPSTASH_REDIS_REST_TOKEN');
-        const Keyv = require('keyv');
 
         const customStore = {
           get: async (key: string) => {
