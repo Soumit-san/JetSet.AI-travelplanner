@@ -10,6 +10,7 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CalendarIcon, Wallet } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -68,7 +69,7 @@ export default function Step2Dates({ form }: Step2Props) {
                                 </PopoverTrigger>
                                 <PopoverContent className="w-auto p-0 glass-panel border-white/20 bg-ink-900/95 shadow-2xl z-50" align="start">
                                     <Calendar
-                                        initialFocus
+                                        autoFocus
                                         mode="range"
                                         defaultMonth={field.value?.from}
                                         selected={{
@@ -79,9 +80,9 @@ export default function Step2Dates({ form }: Step2Props) {
                                         numberOfMonths={2}
                                         className="text-white"
                                         classNames={{
-                                            day_selected: "bg-sky-pure text-white hover:bg-sky-pure hover:text-white focus:bg-sky-pure focus:text-white",
-                                            day_today: "bg-white/10 text-white",
-                                            day_range_middle: "bg-sky-pure/20 text-white",
+                                            selected: "bg-sky-pure text-white hover:bg-sky-pure hover:text-white focus:bg-sky-pure focus:text-white",
+                                            today: "bg-white/10 text-white",
+                                            range_middle: "bg-sky-pure/20 text-white",
                                         }}
                                     />
                                 </PopoverContent>
@@ -98,26 +99,23 @@ export default function Step2Dates({ form }: Step2Props) {
                     render={({ field }) => (
                         <FormItem className="flex flex-col">
                             <FormLabel className="text-white/80 font-mono text-sm uppercase mb-2">Budget per Person</FormLabel>
-                            <FormControl>
-                                <div className="relative group w-full">
-                                    <Wallet className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-400 h-5 w-5" />
-                                    <select
-                                        {...field}
-                                        className="w-full h-14 pl-12 pr-10 text-base glass-input text-white appearance-none border-white/20 focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400 rounded-md transition-all outline-none bg-transparent"
-                                    >
-                                        <option value="" disabled className="bg-ink-900 text-white/50">Select tier</option>
+                            <div className="relative group w-full">
+                                <Wallet className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-400 h-5 w-5 z-10 pointer-events-none" />
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <FormControl>
+                                        <SelectTrigger className="w-full h-14 pl-12 text-base glass-input text-white border-white/20 focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400 rounded-md transition-all outline-none bg-transparent">
+                                            <SelectValue placeholder="Select tier" />
+                                        </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent className="glass-panel border-white/20 bg-ink-900/95 shadow-2xl z-50">
                                         {BUDGET_TIERS.map(tier => (
-                                            <option key={tier.id} value={tier.id} className="bg-ink-800 text-white">
+                                            <SelectItem key={tier.id} value={tier.id} className="text-white hover:bg-white/10 focus:bg-white/10 focus:text-white cursor-pointer select-none">
                                                 {tier.label} - {tier.desc}
-                                            </option>
+                                            </SelectItem>
                                         ))}
-                                    </select>
-                                    {/* Custom Arrow */}
-                                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-white/50">
-                                        ▼
-                                    </div>
-                                </div>
-                            </FormControl>
+                                    </SelectContent>
+                                </Select>
+                            </div>
                             <FormMessage className="text-pink-400" />
                         </FormItem>
                     )}

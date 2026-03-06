@@ -59,6 +59,7 @@ export default function TripWizard() {
         let fieldsToValidate: (keyof TripFormValues)[] = [];
         if (step === 1) fieldsToValidate = ["destination"];
         else if (step === 2) fieldsToValidate = ["dateRange", "budget"];
+        else if (step === 3) fieldsToValidate = ["companions", "interests"];
 
         const isStepValid = await form.trigger(fieldsToValidate);
         if (isStepValid) {

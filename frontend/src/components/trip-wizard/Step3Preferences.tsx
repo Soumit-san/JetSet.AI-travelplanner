@@ -54,6 +54,7 @@ export default function Step3Preferences({ form }: Step3Props) {
                                             key={companion.id}
                                             type="button"
                                             onClick={() => field.onChange(companion.id)}
+                                            aria-pressed={isSelected}
                                             className={`
                         p-4 rounded-xl border transition-all flex flex-col items-center gap-2
                         ${isSelected
@@ -82,51 +83,55 @@ export default function Step3Preferences({ form }: Step3Props) {
             <FormField
                 control={form.control}
                 name="interests"
-                render={() => (
-                    <FormItem className="space-y-4">
-                        <FormLabel className="text-white/80 font-mono text-sm uppercase">What are you interested in?</FormLabel>
-                        <div className="flex flex-wrap gap-3">
-                            {INTERESTS.map((interest) => {
-                                const isSelected = form.watch("interests").includes(interest);
-                                return (
-                                    <FormField
-                                        key={interest}
-                                        control={form.control}
-                                        name="interests"
-                                        render={({ field }) => {
-                                            return (
-                                                <FormItem key={interest}>
-                                                    <FormControl>
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => {
-                                                                const current = field.value || [];
-                                                                const updated = isSelected
-                                                                    ? current.filter((i) => i !== interest)
-                                                                    : [...current, interest];
-                                                                field.onChange(updated);
-                                                            }}
-                                                            className={`
+                render={({ field }) => {
+                    const watchedInterests = form.watch("interests") || [];
+                    return (
+                        <FormItem className="space-y-4">
+                            <FormLabel className="text-white/80 font-mono text-sm uppercase">What are you interested in?</FormLabel>
+                            <div className="flex flex-wrap gap-3">
+                                {INTERESTS.map((interest) => {
+                                    const isSelected = watchedInterests.includes(interest);
+                                    return (
+                                        <FormField
+                                            key={interest}
+                                            control={form.control}
+                                            name="interests"
+                                            render={({ field }) => {
+                                                return (
+                                                    <FormItem key={interest}>
+                                                        <FormControl>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => {
+                                                                    const current = field.value || [];
+                                                                    const updated = isSelected
+                                                                        ? current.filter((i: string) => i !== interest)
+                                                                        : [...current, interest];
+                                                                    field.onChange(updated);
+                                                                }}
+                                                                aria-pressed={isSelected}
+                                                                className={`
                                 px-4 py-2 rounded-full border transition-all text-sm
                                 ${isSelected
-                                                                    ? 'bg-violet-500/20 border-violet-400 text-white shadow-[0_0_10px_rgba(139,92,246,0.3)]'
-                                                                    : 'bg-white/5 border-white/10 text-white/70 hover:bg-white/10 hover:border-white/30 hover:text-white'
-                                                                }
+                                                                        ? 'bg-violet-500/20 border-violet-400 text-white shadow-[0_0_10px_rgba(139,92,246,0.3)]'
+                                                                        : 'bg-white/5 border-white/10 text-white/70 hover:bg-white/10 hover:border-white/30 hover:text-white'
+                                                                    }
                               `}
-                                                        >
-                                                            {interest}
-                                                        </button>
-                                                    </FormControl>
-                                                </FormItem>
-                                            );
-                                        }}
-                                    />
-                                );
-                            })}
-                        </div>
-                        <FormMessage className="text-pink-400" />
-                    </FormItem>
-                )}
+                                                            >
+                                                                {interest}
+                                                            </button>
+                                                        </FormControl>
+                                                    </FormItem>
+                                                );
+                                            }}
+                                        />
+                                    );
+                                })}
+                            </div>
+                            <FormMessage className="text-pink-400" />
+                        </FormItem>
+                    );
+                }}
             />
         </div>
     );
