@@ -62,9 +62,15 @@ export default function TripWizard() {
         // 5. On Failure: Catch error, toggle loading off, and show a destructive toast notification to the user.
         console.log("Form Submitted:", data);
 
-        // Mock Redirect for UI verification using a distinct timestamp UUID
         const placeholderId = generatePlaceholderId();
-        router.push(`/results/${placeholderId}`);
+
+        const destParam = encodeURIComponent(data.destination);
+        const datesString = data.dateRange?.from
+            ? `${data.dateRange.from.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${data.dateRange.to ? data.dateRange.to.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''}`
+            : '';
+        const datesParam = encodeURIComponent(datesString);
+
+        router.push(`/results/${placeholderId}?dest=${destParam}&dates=${datesParam}`);
     };
 
     const nextStep = async () => {

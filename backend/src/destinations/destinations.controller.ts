@@ -1,5 +1,5 @@
 import { Controller, Get, Query, UseInterceptors } from '@nestjs/common';
-import { CacheInterceptor, CacheKey, CacheTTL } from '@nestjs/cache-manager';
+import { CacheInterceptor, CacheTTL } from '@nestjs/cache-manager';
 import { DestinationsService } from './destinations.service';
 
 @Controller('destinations')
@@ -8,7 +8,7 @@ export class DestinationsController {
 
     @Get('search')
     @UseInterceptors(CacheInterceptor) // Auto cache the responses in Upstash Redis!
-    @CacheTTL(60 * 60 * 24 * 7) // Cache for 7 days (in seconds)
+    @CacheTTL(604800000) // Cache for 7 days (in milliseconds)
     async search(@Query('q') query: string) {
         if (!query) return [];
 

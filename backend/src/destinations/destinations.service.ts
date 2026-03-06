@@ -18,12 +18,17 @@ export class DestinationsService {
         }
 
         const apiKey = this.configService.get<string>('GEOAPIFY_API_KEY');
+        if (!apiKey) {
+            this.logger.error('Missing GEOAPIFY_API_KEY configuration');
+            throw new Error('Destination search configuration is missing.');
+        }
+
         const url = `https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(
             query,
         )}&type=city&format=json&apiKey=${apiKey}`;
 
         try {
-            const { data } = await firstValueFrom(this.httpService.get(url));
+            const { data } = await firstValueFrom(this.httpService.get(url, { timeout: 5000 }));
 
             // Geoapify returns an array of objects inside `data.results`.
             // Let's map it to a clean UI-friendly format for our autocomplete dropdown.

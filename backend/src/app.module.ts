@@ -14,15 +14,18 @@ import { DestinationsModule } from './destinations/destinations.module';
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: (configService: ConfigService) => ({
-        type: 'postgres',
-        url: configService.get<string>('DATABASE_URL'),
-        autoLoadEntities: true,
-        synchronize: true, // Only for development!
-        ssl: {
-          rejectUnauthorized: false,
-        },
-      }),
+      useFactory: (configService: ConfigService) => {
+        const isDev = configService.get<string>('NODE_ENV') === 'development';
+        return {
+          type: 'postgres',
+          url: configService.get<string>('DATABASE_URL'),
+          autoLoadEntities: true,
+          synchronize: isDev, // Safe config switch
+          ssl: isDev ? false : {
+            rejectUnauthorized: true,
+          },
+        };
+      },
       inject: [ConfigService],
     }),
     CacheModule.registerAsync({
@@ -31,9 +34,9 @@ import { DestinationsModule } from './destinations/destinations.module';
       useFactory: async (configService: ConfigService) => {
         const redisUrl = configService.get<string>('UPSTASH_REDIS_REST_URL');
         const redisToken = configService.get<string>('UPSTASH_REDIS_REST_TOKEN');
+        const Keyv = require('keyv');
 
-        // We initialize the Upstash Redis client and return it as the store
-        const store = {
+        const customStore = {
           get: async (key: string) => {
             const redis = new Redis({ url: redisUrl, token: redisToken });
             return await redis.get(key);
@@ -46,14 +49,20 @@ import { DestinationsModule } from './destinations/destinations.module';
               await redis.set(key, value);
             }
           },
-          del: async (key: string) => {
+          delete: async (key: string) => {
             const redis = new Redis({ url: redisUrl, token: redisToken });
             await redis.del(key);
-          }
+          },
+          clear: async () => {
+            const redis = new Redis({ url: redisUrl, token: redisToken });
+            await redis.flushdb();
+          },
+          on: () => { },
+          opts: {}
         };
 
         return {
-          store: store as any,
+          stores: [new Keyv({ store: customStore })],
         }
       },
       inject: [ConfigService],
