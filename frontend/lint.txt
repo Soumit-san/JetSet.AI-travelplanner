@@ -1,0 +1,17 @@
+﻿
+C:\Users\KIIT0001\JetSet\JetSet.AI-travelplanner\frontend\src\components\trip-wizard\TripWizard.tsx
+  64:39  error  Error: Cannot call impure function during render
+
+`Date.now` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+C:\Users\KIIT0001\JetSet\JetSet.AI-travelplanner\frontend\src\components\trip-wizard\TripWizard.tsx:64:39
+  62 |
+  63 |         // Mock Redirect for UI verification using a distinct timestamp UUID
+> 64 |         const placeholderId = `trip-${Date.now()}`;
+     |                                       ^^^^^^^^^^ Cannot call impure function
+  65 |         router.push(`/results/${placeholderId}`);
+  66 |     };
+  67 |  react-hooks/purity
+
+Γ£û 1 problem (1 error, 0 warnings)
+

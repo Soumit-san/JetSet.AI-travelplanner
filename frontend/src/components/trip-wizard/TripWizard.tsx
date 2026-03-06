@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -30,6 +31,8 @@ export const tripFormSchema = z.object({
 
 export type TripFormValues = z.infer<typeof tripFormSchema>;
 
+const generatePlaceholderId = () => `trip-${Date.now()}-${Math.random().toString(36).substring(7)}`;
+
 export default function TripWizard() {
     const [step, setStep] = useState(1);
     const totalSteps = 3;
@@ -49,6 +52,7 @@ export default function TripWizard() {
         mode: "onChange",
     });
 
+    const router = useRouter();
     const onSubmit = async (data: TripFormValues) => {
         // TODO: [TASK-1] Implement real API integration for Trip Planning Submission
         // 1. Endpoint: POST `/api/trip-plan` or equivalent NestJS/NextRoute.
@@ -57,7 +61,10 @@ export default function TripWizard() {
         // 4. On Success: Navigate user to the Results Dashboard (`/results/:id`) populated with initial skeleton loaders.
         // 5. On Failure: Catch error, toggle loading off, and show a destructive toast notification to the user.
         console.log("Form Submitted:", data);
-        // e.g. await submitTripForm(data);
+
+        // Mock Redirect for UI verification using a distinct timestamp UUID
+        const placeholderId = generatePlaceholderId();
+        router.push(`/results/${placeholderId}`);
     };
 
     const nextStep = async () => {
