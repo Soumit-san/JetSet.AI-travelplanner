@@ -60,7 +60,9 @@ export default function Step1Destination({ form }: Step1Props) {
             setIsLoading(true);
             try {
                 // Fetch from Next.js configured base URL or fallback to localhost
-                const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001";
+                const baseUrl = typeof process !== 'undefined' && process.env.NEXT_PUBLIC_API_URL
+                    ? process.env.NEXT_PUBLIC_API_URL
+                    : "http://localhost:3001";
                 const response = await fetch(`${baseUrl}/destinations/search?q=${encodeURIComponent(query)}`);
 
                 if (response.ok) {
