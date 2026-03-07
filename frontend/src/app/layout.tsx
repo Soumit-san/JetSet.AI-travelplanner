@@ -23,6 +23,7 @@ export const metadata: Metadata = {
 };
 
 import Providers from "./providers";
+import { Header } from "@/components/layout/Header";
 
 export default function RootLayout({
   children,
@@ -35,7 +36,10 @@ export default function RootLayout({
         className={`${syne.variable} ${dmSans.variable} ${jetbrainsMono.variable} antialiased font-sans bg-ink-900 text-white min-h-screen flex flex-col`}
       >
         <Providers>
-          {children}
+          <Header />
+          <main className="flex-1">
+            {children}
+          </main>
         </Providers>
       </body>
     </html>
