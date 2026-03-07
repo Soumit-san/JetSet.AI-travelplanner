@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { EMERGENCY_HUB } from '@/utils/airport-mappings';
 
 export interface EmergencyFlightParams {
     originLocationCode: string;
@@ -29,11 +30,8 @@ export const useEmergencyFlights = (params: EmergencyFlightParams | null) => {
             if (params.destinationLocationCode && params.destinationLocationCode.trim() !== "") {
                 queryParams.append("destinationLocationCode", params.destinationLocationCode);
             } else {
-                // Fan out across supported hubs if destination is completely empty
-                const SUPPORTED_EMERGENCY_HUBS = ["LHR", "DXB", "JFK"];
-                SUPPORTED_EMERGENCY_HUBS.forEach(hub => {
-                    queryParams.append("destinationLocationCode", hub);
-                });
+                // Defaulting emergency flights to a focused single global hub to ensure predictable Amadeus querying
+                queryParams.append("destinationLocationCode", EMERGENCY_HUB.code);
             }
             queryParams.append("departureDate", todayStr);
             queryParams.append("adults", "1");
@@ -50,7 +48,13 @@ export const useEmergencyFlights = (params: EmergencyFlightParams | null) => {
 
             const response = await fetch(`${baseUrl}/flights/search?${queryParams.toString()}`);
             if (!response.ok) {
-                throw new Error('Failed to fetch emergency flights');
+                let errorBody = '';
+                try {
+                    errorBody = await response.text();
+                } catch {
+                    errorBody = 'Could not read response body';
+                }
+                throw new Error(`Failed to fetch emergency flights (Status: ${response.status}). URL: ${baseUrl}/flights/search?${queryParams.toString()} Body: ${errorBody}`);
             }
             return response.json();
         },

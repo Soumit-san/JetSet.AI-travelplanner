@@ -1,3 +1,5 @@
+export const EMERGENCY_HUB = { code: 'LHR', label: 'London Heathrow (LHR)' };
+
 export const MAP_TO_IATA: Record<string, string> = {
     // US & Americas
     "New York": "JFK", "Los Angeles": "LAX", "Chicago": "ORD", "Miami": "MIA", "San Francisco": "SFO",
