@@ -42,11 +42,22 @@ export const getIataCode = (location: string, fallback: string = "DEL"): string 
         return cleanLocation.toUpperCase();
     }
 
-    // Strict lookup for now
+    const lowerLocation = cleanLocation.toLowerCase();
+
+    // 1. Exact case-insensitive match (highest priority to stop masking)
     for (const [key, value] of Object.entries(MAP_TO_IATA)) {
-        if (cleanLocation.toLowerCase().includes(key.toLowerCase())) {
+        if (key.toLowerCase() === lowerLocation) {
             return value;
         }
     }
+
+    // 2. Longest-key partial match (e.g. prioritize "Mopa" sorting logic if embedded)
+    const sortedKeys = Object.keys(MAP_TO_IATA).sort((a, b) => b.length - a.length);
+    for (const key of sortedKeys) {
+        if (lowerLocation.includes(key.toLowerCase())) {
+            return MAP_TO_IATA[key];
+        }
+    }
+
     return fallback;
 };

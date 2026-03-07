@@ -29,8 +29,11 @@ export const useEmergencyFlights = (params: EmergencyFlightParams | null) => {
             if (params.destinationLocationCode && params.destinationLocationCode.trim() !== "") {
                 queryParams.append("destinationLocationCode", params.destinationLocationCode);
             } else {
-                // Defaulting emergency flights to a major global hub if destination not supplied.
-                queryParams.append("destinationLocationCode", "LHR");
+                // Fan out across supported hubs if destination is completely empty
+                const SUPPORTED_EMERGENCY_HUBS = ["LHR", "DXB", "JFK"];
+                SUPPORTED_EMERGENCY_HUBS.forEach(hub => {
+                    queryParams.append("destinationLocationCode", hub);
+                });
             }
             queryParams.append("departureDate", todayStr);
             queryParams.append("adults", "1");
@@ -40,9 +43,10 @@ export const useEmergencyFlights = (params: EmergencyFlightParams | null) => {
                 queryParams.append("currencyCode", params.currencyCode);
             }
 
-            const baseUrl = typeof process !== 'undefined' && process.env.NEXT_PUBLIC_API_URL
-                ? process.env.NEXT_PUBLIC_API_URL
-                : 'http://localhost:3001';
+            const baseUrl = typeof process !== 'undefined' ? process.env.NEXT_PUBLIC_API_URL : undefined;
+            if (!baseUrl) {
+                throw new Error("NEXT_PUBLIC_API_URL is missing. Cannot fetch flights.");
+            }
 
             const response = await fetch(`${baseUrl}/flights/search?${queryParams.toString()}`);
             if (!response.ok) {
