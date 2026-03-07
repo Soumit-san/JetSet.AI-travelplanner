@@ -30,6 +30,16 @@ const INTERESTS = [
     "Art & Museums"
 ];
 
+const CURRENCIES = [
+    { code: "", label: "Auto-detect by Location" },
+    { code: "INR", label: "🇮🇳 Indian Rupee (INR)" },
+    { code: "USD", label: "🇺🇸 US Dollar (USD)" },
+    { code: "GBP", label: "🇬🇧 British Pound (GBP)" },
+    { code: "EUR", label: "🇪🇺 Euro (EUR)" },
+    { code: "JPY", label: "🇯🇵 Japanese Yen (JPY)" },
+    { code: "AUD", label: "🇦🇺 Australian Dollar (AUD)" },
+];
+
 export default function Step3Preferences({ form }: Step3Props) {
     return (
         <div className="space-y-8">
@@ -132,6 +142,37 @@ export default function Step3Preferences({ form }: Step3Props) {
                         </FormItem>
                     );
                 }}
+            />
+
+            <div className="h-px w-full bg-white/10 rounded-full" />
+
+            {/* Currency Preference */}
+            <FormField
+                control={form.control}
+                name="currency"
+                render={({ field }) => (
+                    <FormItem className="space-y-4">
+                        <FormLabel className="text-white/80 font-mono text-sm uppercase">Nationality / Preferred Currency</FormLabel>
+                        <FormControl>
+                            <div className="relative">
+                                <select
+                                    {...field}
+                                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white appearance-none focus:outline-none focus:ring-2 focus:ring-sky-500 transition-all cursor-pointer"
+                                >
+                                    {CURRENCIES.map(curr => (
+                                        <option key={curr.code} value={curr.code} className="bg-slate-900 text-white">
+                                            {curr.label}
+                                        </option>
+                                    ))}
+                                </select>
+                                <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none text-white/50">
+                                    ▼
+                                </div>
+                            </div>
+                        </FormControl>
+                        <FormMessage className="text-pink-400" />
+                    </FormItem>
+                )}
             />
         </div>
     );

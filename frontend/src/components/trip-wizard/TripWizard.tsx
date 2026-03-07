@@ -15,6 +15,9 @@ import Step3Preferences from "./Step3Preferences";
 
 // Define the form schema
 export const tripFormSchema = z.object({
+    origin: z.string().min(2, {
+        message: "Origin must be at least 2 characters.",
+    }),
     destination: z.string().min(2, {
         message: "Destination must be at least 2 characters.",
     }),
@@ -27,6 +30,7 @@ export const tripFormSchema = z.object({
     budget: z.string().min(1, "Please select a budget level"),
     companions: z.string().min(1, "Please select who you are traveling with"),
     interests: z.array(z.string()).min(1, "Select at least one interest"),
+    currency: z.string().optional(),
 });
 
 export type TripFormValues = z.infer<typeof tripFormSchema>;
@@ -40,6 +44,7 @@ export default function TripWizard() {
     const form = useForm<TripFormValues>({
         resolver: zodResolver(tripFormSchema),
         defaultValues: {
+            origin: "",
             destination: "",
             dateRange: {
                 from: undefined,
@@ -48,6 +53,7 @@ export default function TripWizard() {
             budget: "",
             companions: "",
             interests: [],
+            currency: "",
         },
         mode: "onChange",
     });
@@ -64,19 +70,22 @@ export default function TripWizard() {
 
         const placeholderId = generatePlaceholderId();
 
+        const orgParam = encodeURIComponent(data.origin);
         const destParam = encodeURIComponent(data.destination);
         const datesString = data.dateRange?.from
             ? `${data.dateRange.from.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${data.dateRange.to ? data.dateRange.to.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''}`
             : '';
         const datesParam = encodeURIComponent(datesString);
 
-        router.push(`/results/${placeholderId}?dest=${destParam}&dates=${datesParam}`);
+        const currParam = data.currency ? `&curr=${data.currency}` : '';
+
+        router.push(`/results/${placeholderId}?org=${orgParam}&dest=${destParam}&dates=${datesParam}${currParam}`);
     };
 
     const nextStep = async () => {
         // Validate current step before moving
         let fieldsToValidate: (keyof TripFormValues)[] = [];
-        if (step === 1) fieldsToValidate = ["destination"];
+        if (step === 1) fieldsToValidate = ["origin", "destination"];
         else if (step === 2) fieldsToValidate = ["dateRange", "budget"];
         else if (step === 3) fieldsToValidate = ["companions", "interests"];
 

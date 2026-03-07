@@ -14,6 +14,10 @@ import SummaryModule from "./modules/SummaryModule";
 
 interface ResultsDashboardProps {
     tripId: string;
+    org?: string;
+    dest?: string;
+    dates?: string;
+    curr?: string;
 }
 
 const TABS = [
@@ -24,7 +28,7 @@ const TABS = [
     { id: "itinerary", label: "Itinerary", icon: Map, color: "text-cyan-400" },
 ];
 
-export default function ResultsDashboard({ tripId }: ResultsDashboardProps) {
+export default function ResultsDashboard({ tripId, org, dest, dates, curr }: ResultsDashboardProps) {
     const [activeTab, setActiveTab] = useState("summary");
 
     return (
@@ -71,35 +75,35 @@ export default function ResultsDashboard({ tripId }: ResultsDashboardProps) {
                 </div>
 
                 <div className="mt-8 relative min-h-[500px]">
-                    <AnimatePresence mode="wait">
-                        <motion.div
-                            key={activeTab}
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -10 }}
-                            transition={{ duration: 0.3 }}
-                        >
-                            <TabsContent value="summary" className="mt-0 focus-visible:ring-0 outline-none">
-                                <SummaryModule tripId={tripId} />
-                            </TabsContent>
-
-                            <TabsContent value="flights" className="mt-0 focus-visible:ring-0 outline-none">
-                                <FlightsModule tripId={tripId} />
-                            </TabsContent>
-
-                            <TabsContent value="hotels" className="mt-0 focus-visible:ring-0 outline-none">
-                                <HotelsModule tripId={tripId} />
-                            </TabsContent>
-
-                            <TabsContent value="season" className="mt-0 focus-visible:ring-0 outline-none">
-                                <SeasonModule tripId={tripId} />
-                            </TabsContent>
-
-                            <TabsContent value="itinerary" className="mt-0 focus-visible:ring-0 outline-none">
-                                <ItineraryModule tripId={tripId} />
-                            </TabsContent>
+                    <TabsContent value="summary" className="mt-0 focus-visible:ring-0 outline-none">
+                        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
+                            <SummaryModule tripId={tripId} />
                         </motion.div>
-                    </AnimatePresence>
+                    </TabsContent>
+
+                    <TabsContent value="flights" className="mt-0 focus-visible:ring-0 outline-none">
+                        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
+                            <FlightsModule tripId={tripId} org={org} dest={dest} dates={dates} curr={curr} />
+                        </motion.div>
+                    </TabsContent>
+
+                    <TabsContent value="hotels" className="mt-0 focus-visible:ring-0 outline-none">
+                        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
+                            <HotelsModule tripId={tripId} />
+                        </motion.div>
+                    </TabsContent>
+
+                    <TabsContent value="season" className="mt-0 focus-visible:ring-0 outline-none">
+                        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
+                            <SeasonModule tripId={tripId} />
+                        </motion.div>
+                    </TabsContent>
+
+                    <TabsContent value="itinerary" className="mt-0 focus-visible:ring-0 outline-none">
+                        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
+                            <ItineraryModule tripId={tripId} />
+                        </motion.div>
+                    </TabsContent>
                 </div>
             </Tabs>
         </div>

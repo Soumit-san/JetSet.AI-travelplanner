@@ -5,15 +5,17 @@ export default async function ResultsPage({
     searchParams
 }: {
     params: Promise<{ id: string }>;
-    searchParams: Promise<{ dest?: string; dates?: string }>;
+    searchParams: Promise<{ org?: string; dest?: string; dates?: string; curr?: string }>;
 }) {
     // 1. Await Next.js 15 dynamic params
     const resolvedParams = await params;
     const resolvedSearch = await searchParams;
 
     const tripId = resolvedParams.id;
+    const org = resolvedSearch.org || "Unknown Origin";
     const dest = resolvedSearch.dest || "Unknown Destination";
     const dates = resolvedSearch.dates || "Dates Unspecified";
+    const curr = resolvedSearch.curr || "";
 
     return (
         <main className="min-h-screen bg-background relative overflow-hidden flex flex-col items-center py-10 px-4 sm:px-6 lg:px-8">
@@ -36,6 +38,11 @@ export default async function ResultsPage({
 
                     <div className="flex gap-4">
                         <div className="text-right">
+                            <p className="text-white/50 text-xs font-mono uppercase tracking-wider">Origin</p>
+                            <p className="text-white font-medium text-lg">{org}</p>
+                        </div>
+                        <div className="w-px bg-white/10" />
+                        <div className="text-center">
                             <p className="text-white/50 text-xs font-mono uppercase tracking-wider">Destination</p>
                             <p className="text-white font-medium text-lg">{dest}</p>
                         </div>
@@ -48,7 +55,7 @@ export default async function ResultsPage({
                 </div>
 
                 {/* Dashboard Client Component */}
-                <ResultsDashboard tripId={tripId} />
+                <ResultsDashboard tripId={tripId} org={org} dest={dest} dates={dates} curr={curr} />
             </div>
         </main>
     );
