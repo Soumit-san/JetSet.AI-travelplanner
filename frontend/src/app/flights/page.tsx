@@ -39,6 +39,7 @@ export default function FlightsPage() {
             departureDate: formData.departureDate,
             adults: formData.adults,
         });
+        setMaxStops(null);
     };
 
     // The Amadeus Flight Offers API returns an array in `data.data`
@@ -88,10 +89,11 @@ export default function FlightsPage() {
                 className="w-full max-w-4xl bg-white/5 dark:bg-black/20 backdrop-blur-2xl border border-white/10 rounded-3xl p-6 md:p-8 shadow-2xl mb-12 flex flex-col md:flex-row gap-4 items-end"
             >
                 <div className="flex-1 w-full relative">
-                    <label className="text-xs uppercase text-sky-200/50 font-bold tracking-wider mb-2 block">Origin (IATA)</label>
+                    <label htmlFor="originLocationCode" className="text-xs uppercase text-sky-200/50 font-bold tracking-wider mb-2 block">Origin (IATA)</label>
                     <div className="relative">
                         <Plane className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-sky-400 rotate-45" />
                         <input
+                            id="originLocationCode"
                             type="text"
                             maxLength={3}
                             required
@@ -104,10 +106,11 @@ export default function FlightsPage() {
                 </div>
 
                 <div className="flex-1 w-full relative">
-                    <label className="text-xs uppercase text-sky-200/50 font-bold tracking-wider mb-2 block">Destination (IATA)</label>
+                    <label htmlFor="destinationLocationCode" className="text-xs uppercase text-sky-200/50 font-bold tracking-wider mb-2 block">Destination (IATA)</label>
                     <div className="relative">
                         <Plane className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-indigo-400" />
                         <input
+                            id="destinationLocationCode"
                             type="text"
                             maxLength={3}
                             required
@@ -120,8 +123,9 @@ export default function FlightsPage() {
                 </div>
 
                 <div className="w-full md:w-auto relative">
-                    <label className="text-xs uppercase text-sky-200/50 font-bold tracking-wider mb-2 block">Date</label>
+                    <label htmlFor="departureDate" className="text-xs uppercase text-sky-200/50 font-bold tracking-wider mb-2 block">Date</label>
                     <input
+                        id="departureDate"
                         type="date"
                         required
                         className="w-full bg-ink-900/50 border border-white/10 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-sky-500/50 transition-all [color-scheme:dark]"
