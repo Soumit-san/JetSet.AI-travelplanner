@@ -1,10 +1,28 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { MapPin, Plane, Clock, ShieldCheck } from 'lucide-react';
+import { Plane } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
+export interface AmadeusFlight {
+    id: string;
+    itineraries?: Array<{
+        duration?: string;
+        segments: Array<{
+            departure: { iataCode: string; at: string };
+            arrival: { iataCode: string; at: string };
+            carrierCode: string;
+            operating?: { carrierCode: string };
+        }>;
+    }>;
+    price?: {
+        curr?: string;
+        currency?: string;
+        total?: string;
+    };
+}
+
 export interface FlightCardProps {
-    flight: any;
+    flight: AmadeusFlight;
 }
 
 const MAP_TO_AIRLINE: Record<string, string> = {
@@ -52,7 +70,7 @@ export function FlightCard({ flight }: FlightCardProps) {
 
     const departure = new Date(firstSegment.departure.at);
     const arrival = new Date(lastSegment.arrival.at);
-    const duration = outbound.duration?.replace('PT', '').toLowerCase(); // e.g. PT5H30M -> 5h30m
+    const duration = outbound?.duration?.replace('PT', '').toLowerCase(); // e.g. PT5H30M -> 5h30m
     const currency = flight.price?.currency;
     const price = flight.price?.total;
     const stops = segments.length - 1;

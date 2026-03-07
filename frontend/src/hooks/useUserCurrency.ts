@@ -8,10 +8,12 @@ const getCurrencyFromLocale = (locale: string): string => {
     const parts = locale.split('-');
     const country = parts.length > 1 ? parts[1].toUpperCase() : '';
 
+    const eurozone = ['AT', 'BE', 'CY', 'DE', 'EE', 'ES', 'FI', 'FR', 'GR', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'PT', 'SI', 'SK'];
+    if (eurozone.includes(country)) return 'EUR';
+
     switch (country) {
         case 'US': return 'USD';
         case 'GB': return 'GBP';
-        case 'EU': return 'EUR';
         case 'JP': return 'JPY';
         case 'IN': return 'INR';
         case 'CN': return 'CNY';

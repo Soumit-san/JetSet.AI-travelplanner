@@ -20,9 +20,12 @@ export const useFlights = (params: FlightSearchParams | null) => {
                 if (value) queryParams.append(key, value.toString());
             });
 
-            // Pointing to absolute backend URL assuming backend runs on port 3001
-            // If deployed or proxied, this should use a NEXT_PUBLIC variable
-            const response = await fetch(`http://localhost:3001/flights/search?${queryParams.toString()}`);
+            // Pointing to absolute backend URL using NEXT_PUBLIC_API_URL
+            const baseUrl = typeof process !== 'undefined' && process.env.NEXT_PUBLIC_API_URL
+                ? process.env.NEXT_PUBLIC_API_URL
+                : 'http://localhost:3001';
+
+            const response = await fetch(`${baseUrl}/flights/search?${queryParams.toString()}`);
             if (!response.ok) {
                 throw new Error('Failed to fetch flights');
             }

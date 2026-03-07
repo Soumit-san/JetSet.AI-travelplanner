@@ -5,7 +5,7 @@ export default async function ResultsPage({
     searchParams
 }: {
     params: Promise<{ id: string }>;
-    searchParams: Promise<{ org?: string; dest?: string; dates?: string; curr?: string }>;
+    searchParams: Promise<{ org?: string; dest?: string; dates?: string; displayDates?: string; curr?: string }>;
 }) {
     // 1. Await Next.js 15 dynamic params
     const resolvedParams = await params;
@@ -15,6 +15,7 @@ export default async function ResultsPage({
     const org = resolvedSearch.org || "Unknown Origin";
     const dest = resolvedSearch.dest || "Unknown Destination";
     const dates = resolvedSearch.dates || "Dates Unspecified";
+    const displayDates = resolvedSearch.displayDates || dates;
     const curr = resolvedSearch.curr || "";
 
     return (
@@ -49,7 +50,7 @@ export default async function ResultsPage({
                         <div className="w-px bg-white/10" />
                         <div className="text-left">
                             <p className="text-white/50 text-xs font-mono uppercase tracking-wider">Dates</p>
-                            <p className="text-white font-medium text-lg">{dates}</p>
+                            <p className="text-white font-medium text-lg">{displayDates}</p>
                         </div>
                     </div>
                 </div>

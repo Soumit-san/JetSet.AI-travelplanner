@@ -87,19 +87,22 @@ export default function Step1Destination({ form }: Step1Props) {
     const originRef = useRef<HTMLDivElement>(null);
     const destRef = useRef<HTMLDivElement>(null);
 
+    const { setShowDropdown: setOriginShowDropdown } = originSearch;
+    const { setShowDropdown: setDestShowDropdown } = destSearch;
+
     // Click outside to close dropdowns
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (originRef.current && !originRef.current.contains(event.target as Node)) {
-                originSearch.setShowDropdown(false);
+                setOriginShowDropdown(false);
             }
             if (destRef.current && !destRef.current.contains(event.target as Node)) {
-                destSearch.setShowDropdown(false);
+                setDestShowDropdown(false);
             }
         };
         document.addEventListener("mousedown", handleClickOutside);
         return () => document.removeEventListener("mousedown", handleClickOutside);
-    }, [originSearch, destSearch]);
+    }, [setOriginShowDropdown, setDestShowDropdown]);
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, searchState: ReturnType<typeof useLocationSearch>) => {
         if (!searchState.showDropdown || searchState.suggestions.length === 0) return;

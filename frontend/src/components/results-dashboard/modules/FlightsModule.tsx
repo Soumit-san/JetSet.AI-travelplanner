@@ -8,6 +8,7 @@ import { useFlights, FlightSearchParams } from "@/hooks/useFlights";
 import { useUserCurrency } from "@/hooks/useUserCurrency";
 import { FlightCard } from "@/components/flights/FlightCard";
 import { FlightFilters, SortOption } from "@/components/flights/FlightFilters";
+import { compareFlights } from "@/utils/flight-utils";
 
 // Expanded mapping of city string to nearest IATA for Amadeus
 const MAP_TO_IATA: Record<string, string> = {
@@ -24,7 +25,7 @@ const MAP_TO_IATA: Record<string, string> = {
     "Shanghai": "PVG", "Hong Kong": "HKG", "Singapore": "SIN", "Bangkok": "BKK",
     "Kuala Lumpur": "KUL", "Jakarta": "CGK", "Taipei": "TPE", "Manila": "MNL",
     // India
-    "Delhi": "DEL", "Mumbai": "BOM", "Bangalore": "BLR", "Chennai": "MAA", "Hyderabad": "HYD",
+    "Delhi": "DEL", "Mumbai": "BOM", "Bangalore": "BLR", "Bengaluru": "BLR", "Chennai": "MAA", "Hyderabad": "HYD",
     "Kolkata": "CCU", "Ahmedabad": "AMD", "Pune": "PNQ", "Goa": "GOI", "Kochi": "COK",
     "Bhubaneswar": "BBI", "Odisha": "BBI", "Jaipur": "JAI", "Lucknow": "LKO", "Guwahati": "GAU",
     // Middle East & Africa
@@ -43,11 +44,20 @@ const getIataFromLocation = (loc: string, fallback: string) => {
     return fallback;
 };
 
-// Parse "Oct 12 - Oct 15" into "YYYY-MM-DD"
 const parseDepartureDate = (datesStr: string) => {
     try {
-        const parts = datesStr.split("-");
-        const startDateStr = parts[0].trim();
+        if (!datesStr) throw new Error("Empty date string");
+
+        // Exact format: YYYY-MM-DD
+        const parts = datesStr.split("_");
+        const depDate = parts[0];
+        if (/^\d{4}-\d{2}-\d{2}$/.test(depDate)) {
+            return depDate;
+        }
+
+        // Fallback for "Oct 12 - Oct 15" format
+        const oldParts = datesStr.split("-");
+        const startDateStr = oldParts[0].trim();
         const year = new Date().getFullYear();
         const dateObj = new Date(`${startDateStr} ${year}`);
 
@@ -109,32 +119,7 @@ export default function FlightsModule({ tripId, org, dest, dates, curr }: Module
             });
         }
 
-        result.sort((a: any, b: any) => {
-            const priceA = parseFloat(a.price?.total || '0');
-            const priceB = parseFloat(b.price?.total || '0');
-
-            const parsedDuration = (dur: string) => {
-                const timeStr = dur.replace('PT', '');
-                let hours = 0, mins = 0;
-                const hMatch = timeStr.match(/(\d+)H/);
-                const mMatch = timeStr.match(/(\d+)M/);
-                if (hMatch) hours = parseInt(hMatch[1]);
-                if (mMatch) mins = parseInt(mMatch[1]);
-                return hours * 60 + mins;
-            };
-
-            const durationA = parsedDuration(a.itineraries?.[0]?.duration || '');
-            const durationB = parsedDuration(b.itineraries?.[0]?.duration || '');
-
-            if (sortBy === 'CHEAPEST') return priceA - priceB;
-            if (sortBy === 'FASTEST') return durationA - durationB;
-            if (sortBy === 'BEST') {
-                const scoreA = priceA + (durationA * 0.5);
-                const scoreB = priceB + (durationB * 0.5);
-                return scoreA - scoreB;
-            }
-            return 0;
-        });
+        result.sort((a: any, b: any) => compareFlights(a, b, sortBy));
 
         return result;
     }, [flights, sortBy, maxStops]);
@@ -151,14 +136,6 @@ export default function FlightsModule({ tripId, org, dest, dates, curr }: Module
         );
     }
 
-    if (processedFlights.length === 0) {
-        return (
-            <div className="glass-panel p-8 rounded-2xl text-center border-dashed border-2 border-white/20">
-                <p className="text-white/70">No viable flights found for {defaultDest} yet.</p>
-            </div>
-        );
-    }
-
     return (
         <div className="space-y-6">
             <FlightFilters
@@ -168,20 +145,26 @@ export default function FlightsModule({ tripId, org, dest, dates, curr }: Module
                 setMaxStops={setMaxStops}
             />
 
-            <div className="space-y-4">
-                <AnimatePresence>
-                    {processedFlights.map((flight: any, index: number) => (
-                        <motion.div
-                            key={flight.id}
-                            initial={{ opacity: 0, y: 15 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: index * 0.05 }}
-                        >
-                            <FlightCard flight={flight} />
-                        </motion.div>
-                    ))}
-                </AnimatePresence>
-            </div>
+            {processedFlights.length === 0 ? (
+                <div className="glass-panel p-8 rounded-2xl text-center border-dashed border-2 border-white/20">
+                    <p className="text-white/70">No viable flights found for {defaultDest} yet.</p>
+                </div>
+            ) : (
+                <div className="space-y-4">
+                    <AnimatePresence>
+                        {processedFlights.map((flight: any, index: number) => (
+                            <motion.div
+                                key={flight.id}
+                                initial={{ opacity: 0, y: 15 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: index * 0.05 }}
+                            >
+                                <FlightCard flight={flight} />
+                            </motion.div>
+                        ))}
+                    </AnimatePresence>
+                </div>
+            )}
         </div>
     );
 }

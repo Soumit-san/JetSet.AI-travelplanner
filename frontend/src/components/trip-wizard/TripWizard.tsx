@@ -72,14 +72,20 @@ export default function TripWizard() {
 
         const orgParam = encodeURIComponent(data.origin);
         const destParam = encodeURIComponent(data.destination);
-        const datesString = data.dateRange?.from
+
+        const displayDates = data.dateRange?.from
             ? `${data.dateRange.from.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${data.dateRange.to ? data.dateRange.to.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''}`
             : '';
-        const datesParam = encodeURIComponent(datesString);
 
+        const exactDates = data.dateRange?.from
+            ? `${data.dateRange.from.toISOString().split("T")[0]}${data.dateRange.to ? '_' + data.dateRange.to.toISOString().split("T")[0] : ''}`
+            : '';
+
+        const displayDatesParam = encodeURIComponent(displayDates);
+        const datesParam = encodeURIComponent(exactDates);
         const currParam = data.currency ? `&curr=${data.currency}` : '';
 
-        router.push(`/results/${placeholderId}?org=${orgParam}&dest=${destParam}&dates=${datesParam}${currParam}`);
+        router.push(`/results/${placeholderId}?org=${orgParam}&dest=${destParam}&dates=${datesParam}&displayDates=${displayDatesParam}${currParam}`);
     };
 
     const nextStep = async () => {

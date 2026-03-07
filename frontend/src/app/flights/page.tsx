@@ -6,6 +6,7 @@ import { Search, Plane, Loader2 } from 'lucide-react';
 import { useFlights, FlightSearchParams } from '@/hooks/useFlights';
 import { FlightCard } from '@/components/flights/FlightCard';
 import { FlightFilters, SortOption } from '@/components/flights/FlightFilters';
+import { compareFlights } from '@/utils/flight-utils';
 
 export default function FlightsPage() {
     const [searchParams, setSearchParams] = useState<FlightSearchParams | null>(null);
@@ -23,7 +24,11 @@ export default function FlightsPage() {
 
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
-        if (!formData.originLocationCode || !formData.destinationLocationCode || !formData.departureDate) return;
+
+        const iataRegex = /^[A-Za-z]{3}$/;
+        if (!formData.originLocationCode || !iataRegex.test(formData.originLocationCode)) return;
+        if (!formData.destinationLocationCode || !iataRegex.test(formData.destinationLocationCode)) return;
+        if (!formData.departureDate) return;
         setSearchParams({
             originLocationCode: formData.originLocationCode.toUpperCase(),
             destinationLocationCode: formData.destinationLocationCode.toUpperCase(),
@@ -49,34 +54,7 @@ export default function FlightsPage() {
         }
 
         // Sort
-        result.sort((a, b) => {
-            const priceA = parseFloat(a.price?.total || '0');
-            const priceB = parseFloat(b.price?.total || '0');
-
-            const parsedDuration = (dur: string) => {
-                // very basic parsing for PT#H#M
-                const timeStr = dur.replace('PT', '');
-                let hours = 0, mins = 0;
-                const hMatch = timeStr.match(/(\d+)H/);
-                const mMatch = timeStr.match(/(\d+)M/);
-                if (hMatch) hours = parseInt(hMatch[1]);
-                if (mMatch) mins = parseInt(mMatch[1]);
-                return hours * 60 + mins;
-            };
-
-            const durationA = parsedDuration(a.itineraries?.[0]?.duration || '');
-            const durationB = parsedDuration(b.itineraries?.[0]?.duration || '');
-
-            if (sortBy === 'CHEAPEST') return priceA - priceB;
-            if (sortBy === 'FASTEST') return durationA - durationB;
-            // BEST: simplified score combining price and duration
-            if (sortBy === 'BEST') {
-                const scoreA = priceA + (durationA * 0.5);
-                const scoreB = priceB + (durationB * 0.5);
-                return scoreA - scoreB;
-            }
-            return 0;
-        });
+        result.sort((a, b) => compareFlights(a, b, sortBy));
 
         return result;
     }, [flights, sortBy, maxStops]);
