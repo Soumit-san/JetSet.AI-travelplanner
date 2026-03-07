@@ -9,50 +9,7 @@ import { useUserCurrency } from "@/hooks/useUserCurrency";
 import { FlightCard } from "@/components/flights/FlightCard";
 import { FlightFilters, SortOption } from "@/components/flights/FlightFilters";
 import { compareFlights } from "@/utils/flight-utils";
-
-// Expanded mapping of city string to nearest IATA for Amadeus
-const MAP_TO_IATA: Record<string, string> = {
-    // North America
-    "New York": "JFK", "Los Angeles": "LAX", "Chicago": "ORD", "Houston": "IAH", "Miami": "MIA",
-    "Toronto": "YYZ", "Vancouver": "YVR", "Mexico City": "MEX", "San Francisco": "SFO",
-    "Seattle": "SEA", "Las Vegas": "LAS", "Boston": "BOS", "Washington": "IAD", "Atlanta": "ATL",
-    // Europe
-    "London": "LHR", "Paris": "CDG", "Rome": "FCO", "Berlin": "BER", "Madrid": "MAD",
-    "Amsterdam": "AMS", "Frankfurt": "FRA", "Barcelona": "BCN", "Munich": "MUC", "Zurich": "ZRH",
-    "Vienna": "VIE", "Athens": "ATH", "Dublin": "DUB", "Lisbon": "LIS", "Milan": "MXP",
-    // Asia
-    "Tokyo": "HND", "Kyoto": "ITM", "Osaka": "KIX", "Seoul": "ICN", "Beijing": "PEK",
-    "Shanghai": "PVG", "Hong Kong": "HKG", "Singapore": "SIN", "Bangkok": "BKK",
-    "Kuala Lumpur": "KUL", "Jakarta": "CGK", "Taipei": "TPE", "Manila": "MNL",
-    // India (Comprehensive)
-    "Delhi": "DEL", "New Delhi": "DEL", "Mumbai": "BOM", "Bangalore": "BLR", "Bengaluru": "BLR",
-    "Chennai": "MAA", "Madras": "MAA", "Hyderabad": "HYD", "Kolkata": "CCU", "Calcutta": "CCU",
-    "Ahmedabad": "AMD", "Pune": "PNQ", "Goa": "GOI", "Mopa": "GOX", "Kochi": "COK", "Cochin": "COK",
-    "Bhubaneswar": "BBI", "Odisha": "BBI", "Jaipur": "JAI", "Lucknow": "LKO", "Guwahati": "GAU",
-    "Thiruvananthapuram": "TRV", "Trivandrum": "TRV", "Kozhikode": "CCJ", "Calicut": "CCJ",
-    "Patna": "PAT", "Bagdogra": "IXB", "Chandigarh": "IXC", "Madurai": "IXM", "Port Blair": "IXZ",
-    "Srinagar": "SXR", "Amritsar": "ATQ", "Varanasi": "VNS", "Coimbatore": "CJB", "Visakhapatnam": "VTZ",
-    "Nagpur": "NAG", "Bhopal": "BHO", "Indore": "IDR", "Ranchi": "IXR", "Vadodara": "BDQ",
-    "Mangalore": "IXE", "Mangaluru": "IXE", "Tiruchirappalli": "TRZ", "Trichy": "TRZ",
-    "Tirupati": "TIR", "Raipur": "RPR", "Jammu": "IXJ", "Dehradun": "DED", "Agartala": "IXA",
-    "Imphal": "IMF", "Surat": "STV", "Udaipur": "UDR", "Jodhpur": "JDH", "Gaya": "GAY",
-    "Dibrugarh": "DIB", "Silchar": "IXS", "Dimapur": "DMU", "Aurangabad": "IXU", "Rajkot": "RAJ",
-    "Tuticorin": "TCR", "Hubli": "HBX", "Belgaum": "IXG", "Mysore": "MYQ",
-    // Middle East & Africa
-    "Dubai": "DXB", "Doha": "DOH", "Abu Dhabi": "AUH", "Istanbul": "IST", "Cairo": "CAI",
-    "Johannesburg": "JNB", "Cape Town": "CPT",
-    // South America & Oceania
-    "Sydney": "SYD", "Melbourne": "MEL", "Auckland": "AKL", "Fiji": "NAN",
-    "Sao Paulo": "GRU", "Rio de Janeiro": "GIG", "Buenos Aires": "EZE", "Lima": "LIM",
-    "Bali": "DPS", "Denpasar": "DPS"
-};
-
-const getIataFromLocation = (loc: string, fallback: string) => {
-    for (const [key, iata] of Object.entries(MAP_TO_IATA)) {
-        if (loc.toLowerCase().includes(key.toLowerCase())) return iata;
-    }
-    return fallback;
-};
+import { getIataCode } from "@/utils/airport-mappings";
 
 const parseDepartureDate = (datesStr: string) => {
     try {
@@ -98,8 +55,8 @@ export default function FlightsModule({ tripId, org, dest, dates, curr }: Module
 
     // Trigger search after component mount once we parsed the params
     useEffect(() => {
-        const iataOrg = getIataFromLocation(defaultOrg, "LHR");
-        const iataDest = getIataFromLocation(defaultDest, "CDG");
+        const iataOrg = getIataCode(defaultOrg, "LHR");
+        const iataDest = getIataCode(defaultDest, "CDG");
         let depDate = parseDepartureDate(defaultDates);
 
         setSearchParams({
