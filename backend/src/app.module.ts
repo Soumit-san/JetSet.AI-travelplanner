@@ -7,6 +7,7 @@ import Keyv from 'keyv';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { DestinationsModule } from './destinations/destinations.module';
+import { FlightsModule } from './flights/flights.module';
 
 @Module({
   imports: [
@@ -68,6 +69,7 @@ import { DestinationsModule } from './destinations/destinations.module';
       inject: [ConfigService],
     }),
     DestinationsModule,
+    FlightsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
