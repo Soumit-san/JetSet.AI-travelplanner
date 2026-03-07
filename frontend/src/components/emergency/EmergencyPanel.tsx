@@ -42,9 +42,11 @@ export function EmergencyPanel({ isOpen, onClose }: EmergencyPanelProps) {
             async (position) => {
                 const { latitude, longitude } = position.coords;
                 try {
-                    // Free client-side reverse geocoding to city name
+                    // Free client-side reverse geocoding to city name. Note: Best-effort external dependency.
                     const res = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`);
+                    if (!res.ok) throw new Error("Reverse geocode network fail");
                     const data = await res.json();
+                    if (!data || Object.keys(data).length === 0) throw new Error("Missing geocode data");
 
                     // Only apply results if this is still the active request 
                     // (meaning the user hasn't typed a manual override or started a new request)
@@ -69,7 +71,10 @@ export function EmergencyPanel({ isOpen, onClose }: EmergencyPanelProps) {
                     });
                 } catch (error) {
                     setLocateRequestId((activeId) => {
-                        if (activeId === currentRequestId) setLocationStatus('error');
+                        if (activeId === currentRequestId) {
+                            setCityInput("City unavailable. Please type manually.");
+                            setLocationStatus('error');
+                        }
                         return activeId === currentRequestId ? 0 : activeId;
                     });
                 }
@@ -103,8 +108,8 @@ export function EmergencyPanel({ isOpen, onClose }: EmergencyPanelProps) {
             setResolvedIata(iata);
             setLocationStatus('success');
         } else {
-            setResolvedIata(cityInput.substring(0, 3).toUpperCase()); // attempt raw text
-            setLocationStatus('success');
+            setResolvedIata(null); // Clear fake codes so the UI shows an error
+            setLocationStatus('error');
         }
 
         // Resolve destination
@@ -113,7 +118,7 @@ export function EmergencyPanel({ isOpen, onClose }: EmergencyPanelProps) {
             if (dIata) {
                 setResolvedDestIata(dIata);
             } else {
-                setResolvedDestIata(destInput.substring(0, 3).toUpperCase());
+                setResolvedDestIata(null); // Prevent bad params
             }
         } else {
             setResolvedDestIata(null);
@@ -163,6 +168,7 @@ export function EmergencyPanel({ isOpen, onClose }: EmergencyPanelProps) {
                                 <h2 className="text-xl font-bold font-syne text-white">Emergency Flights</h2>
                             </div>
                             <button
+                                aria-label="Close panel"
                                 onClick={onClose}
                                 className="p-2 rounded-full hover:bg-white/10 transition-colors"
                             >
@@ -173,7 +179,7 @@ export function EmergencyPanel({ isOpen, onClose }: EmergencyPanelProps) {
                         {/* Body content */}
                         <div className="flex-1 overflow-y-auto w-full flex flex-col p-6 gap-6 custom-scrollbar">
                             <div className="text-sm text-slate-300">
-                                Need to get out immediately? We'll find you the cheapest flights leaving today or tomorrow from your nearest airport to major travel hubs.
+                                Need to get out immediately? We'll find you the cheapest flights leaving today or tomorrow from your nearest airport to London Heathrow (LHR).
                             </div>
 
                             {/* Location Section */}
@@ -215,7 +221,7 @@ export function EmergencyPanel({ isOpen, onClose }: EmergencyPanelProps) {
                                                 type="text"
                                                 value={destInput}
                                                 onChange={(e) => setDestInput(e.target.value)}
-                                                placeholder="Enter destination, defaults to London (LHR)"
+                                                placeholder="Enter destination — defaults to London Heathrow (LHR)"
                                                 className="w-full bg-ink-900/50 border border-white/10 rounded-lg py-2.5 pl-9 pr-4 text-white text-sm focus:outline-none focus:border-indigo-500/50 transition-colors"
                                             />
                                         </div>
@@ -231,7 +237,7 @@ export function EmergencyPanel({ isOpen, onClose }: EmergencyPanelProps) {
                                 {resolvedIata && (
                                     <div className="mt-4 text-xs text-emerald-400 flex flex-wrap items-center justify-center gap-1.5 bg-emerald-500/10 py-2 rounded-md border border-emerald-500/20">
                                         <Plane className="w-4 h-4" />
-                                        Monitoring <b>{resolvedIata}</b> {resolvedDestIata ? `to ${resolvedDestIata}` : 'to Major Hubs'}
+                                        Monitoring <b>{resolvedIata}</b> {resolvedDestIata ? `to ${resolvedDestIata}` : 'to London Heathrow (LHR)'}
                                     </div>
                                 )}
                             </div>

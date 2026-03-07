@@ -39,7 +39,10 @@ export const getIataCode = (location: string, fallback: string = "DEL"): string 
     const cleanLocation = location.trim();
     // Check if user literally typed "JFK" or something exactly 3 letters first.
     if (cleanLocation.length === 3 && /^[A-Za-z]{3}$/.test(cleanLocation)) {
-        return cleanLocation.toUpperCase();
+        const token = cleanLocation.toUpperCase();
+        if (Object.values(MAP_TO_IATA).includes(token)) {
+            return token;
+        }
     }
 
     const lowerLocation = cleanLocation.toLowerCase();
