@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { EMERGENCY_HUB } from '@/utils/airport-mappings';
 
 export interface EmergencyFlightParams {
     originLocationCode: string;
@@ -29,8 +30,8 @@ export const useEmergencyFlights = (params: EmergencyFlightParams | null) => {
             if (params.destinationLocationCode && params.destinationLocationCode.trim() !== "") {
                 queryParams.append("destinationLocationCode", params.destinationLocationCode);
             } else {
-                // Defaulting emergency flights to a focused single global hub (London Heathrow) to ensure predictable Amadeus querying
-                queryParams.append("destinationLocationCode", "LHR");
+                // Defaulting emergency flights to a focused single global hub to ensure predictable Amadeus querying
+                queryParams.append("destinationLocationCode", EMERGENCY_HUB.code);
             }
             queryParams.append("departureDate", todayStr);
             queryParams.append("adults", "1");

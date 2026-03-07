@@ -6,7 +6,7 @@ import { Plane, AlertTriangle, X, MapPin, Loader2, Navigation } from 'lucide-rea
 import { useEmergencyFlights } from '@/hooks/useEmergencyFlights';
 import { useUserCurrency } from '@/hooks/useUserCurrency';
 import { FlightCard } from '@/components/flights/FlightCard';
-import { getIataCode } from '@/utils/airport-mappings';
+import { getIataCode, EMERGENCY_HUB } from '@/utils/airport-mappings';
 
 interface EmergencyPanelProps {
     isOpen: boolean;
@@ -20,6 +20,7 @@ export function EmergencyPanel({ isOpen, onClose }: EmergencyPanelProps) {
     const [resolvedIata, setResolvedIata] = useState<string | null>(null);
     const [resolvedDestIata, setResolvedDestIata] = useState<string | null>(null);
     const [locationStatus, setLocationStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+    const [destError, setDestError] = useState(false);
 
     // We removed the automatic Geolocation trigger on mount to respect user privacy.
     // Geolocation is now exclusively triggered manually via the 'handleLocateMe' button.
@@ -72,7 +73,7 @@ export function EmergencyPanel({ isOpen, onClose }: EmergencyPanelProps) {
                 } catch (error) {
                     setLocateRequestId((activeId) => {
                         if (activeId === currentRequestId) {
-                            setCityInput("City unavailable. Please type manually.");
+                            setCityInput("");
                             setLocationStatus('error');
                         }
                         return activeId === currentRequestId ? 0 : activeId;
@@ -82,7 +83,10 @@ export function EmergencyPanel({ isOpen, onClose }: EmergencyPanelProps) {
             (error) => {
                 console.warn("Geolocation Error:", error);
                 setLocateRequestId((activeId) => {
-                    if (activeId === currentRequestId) setLocationStatus('error');
+                    if (activeId === currentRequestId) {
+                        setCityInput("");
+                        setLocationStatus('error');
+                    }
                     return activeId === currentRequestId ? 0 : activeId;
                 });
             },
@@ -96,11 +100,27 @@ export function EmergencyPanel({ isOpen, onClose }: EmergencyPanelProps) {
         setLocationStatus('idle');
     };
 
+    const handleDestInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setDestInput(e.target.value);
+        setDestError(false);
+    };
+
     const handleManualSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         setLocateRequestId(0); // Cancel any pending GPS results
+        setDestError(false);
 
         if (!cityInput) return;
+
+        let dIata: string | null = null;
+        if (destInput) {
+            dIata = getIataCode(destInput, "");
+            if (!dIata) {
+                setResolvedDestIata(null); // Prevent bad params
+                setDestError(true);
+                return; // Prevent search
+            }
+        }
 
         // Resolve origin
         const iata = getIataCode(cityInput, "");
@@ -110,19 +130,10 @@ export function EmergencyPanel({ isOpen, onClose }: EmergencyPanelProps) {
         } else {
             setResolvedIata(null); // Clear fake codes so the UI shows an error
             setLocationStatus('error');
+            return; // Don't execute search
         }
 
-        // Resolve destination
-        if (destInput) {
-            const dIata = getIataCode(destInput, "");
-            if (dIata) {
-                setResolvedDestIata(dIata);
-            } else {
-                setResolvedDestIata(null); // Prevent bad params
-            }
-        } else {
-            setResolvedDestIata(null);
-        }
+        setResolvedDestIata(dIata);
     };
 
     const { data: flightData, isLoading: flightsLoading, isError: flightsError } = useEmergencyFlights(
@@ -179,7 +190,7 @@ export function EmergencyPanel({ isOpen, onClose }: EmergencyPanelProps) {
                         {/* Body content */}
                         <div className="flex-1 overflow-y-auto w-full flex flex-col p-6 gap-6 custom-scrollbar">
                             <div className="text-sm text-slate-300">
-                                Need to get out immediately? We'll find you the cheapest flights leaving today or tomorrow from your nearest airport to London Heathrow (LHR).
+                                Need to get out immediately? We'll find you the cheapest flights leaving today or tomorrow from your nearest airport to {EMERGENCY_HUB.label}.
                             </div>
 
                             {/* Location Section */}
@@ -194,8 +205,8 @@ export function EmergencyPanel({ isOpen, onClose }: EmergencyPanelProps) {
                                                     type="text"
                                                     value={cityInput}
                                                     onChange={handleCityInputChange}
-                                                    placeholder="Enter origin city or IATA"
-                                                    className="w-full bg-ink-900/50 border border-white/10 rounded-lg py-2.5 pl-9 pr-4 text-white text-sm focus:outline-none focus:border-sky-500/50 transition-colors"
+                                                    placeholder={locationStatus === 'error' ? "City unavailable. Please type manually." : "Enter origin city or IATA"}
+                                                    className={`w-full bg-ink-900/50 border ${locationStatus === 'error' ? 'border-red-500/50' : 'border-white/10'} rounded-lg py-2.5 pl-9 pr-4 text-white text-sm focus:outline-none focus:border-sky-500/50 transition-colors`}
                                                 />
                                             </div>
                                             <button
@@ -220,11 +231,16 @@ export function EmergencyPanel({ isOpen, onClose }: EmergencyPanelProps) {
                                             <input
                                                 type="text"
                                                 value={destInput}
-                                                onChange={(e) => setDestInput(e.target.value)}
-                                                placeholder="Enter destination — defaults to London Heathrow (LHR)"
-                                                className="w-full bg-ink-900/50 border border-white/10 rounded-lg py-2.5 pl-9 pr-4 text-white text-sm focus:outline-none focus:border-indigo-500/50 transition-colors"
+                                                onChange={handleDestInputChange}
+                                                placeholder={`Enter destination \u2014 defaults to ${EMERGENCY_HUB.label}`}
+                                                className={`w-full bg-ink-900/50 border ${destError ? 'border-red-500/50' : 'border-white/10'} rounded-lg py-2.5 pl-9 pr-4 text-white text-sm focus:outline-none focus:border-indigo-500/50 transition-colors`}
                                             />
                                         </div>
+                                        {destError && (
+                                            <span className="text-xs text-red-400/90 font-medium px-1 mt-0.5">
+                                                Unrecognized destination. Try a 3-letter IATA code or major city.
+                                            </span>
+                                        )}
                                     </div>
                                     <button
                                         type="submit"
@@ -237,7 +253,7 @@ export function EmergencyPanel({ isOpen, onClose }: EmergencyPanelProps) {
                                 {resolvedIata && (
                                     <div className="mt-4 text-xs text-emerald-400 flex flex-wrap items-center justify-center gap-1.5 bg-emerald-500/10 py-2 rounded-md border border-emerald-500/20">
                                         <Plane className="w-4 h-4" />
-                                        Monitoring <b>{resolvedIata}</b> {resolvedDestIata ? `to ${resolvedDestIata}` : 'to London Heathrow (LHR)'}
+                                        Monitoring <b>{resolvedIata}</b> {resolvedDestIata ? `to ${resolvedDestIata}` : `to ${EMERGENCY_HUB.label}`}
                                     </div>
                                 )}
                             </div>

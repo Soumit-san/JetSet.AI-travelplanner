@@ -1,3 +1,5 @@
+export const EMERGENCY_HUB = { code: 'LHR', label: 'London Heathrow (LHR)' };
+
 export const MAP_TO_IATA: Record<string, string> = {
     // US & Americas
     "New York": "JFK", "Los Angeles": "LAX", "Chicago": "ORD", "Miami": "MIA", "San Francisco": "SFO",
@@ -39,10 +41,7 @@ export const getIataCode = (location: string, fallback: string = "DEL"): string 
     const cleanLocation = location.trim();
     // Check if user literally typed "JFK" or something exactly 3 letters first.
     if (cleanLocation.length === 3 && /^[A-Za-z]{3}$/.test(cleanLocation)) {
-        const token = cleanLocation.toUpperCase();
-        if (Object.values(MAP_TO_IATA).includes(token)) {
-            return token;
-        }
+        return cleanLocation.toUpperCase();
     }
 
     const lowerLocation = cleanLocation.toLowerCase();
