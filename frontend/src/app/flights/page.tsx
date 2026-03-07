@@ -26,12 +26,16 @@ export default function FlightsPage() {
         e.preventDefault();
 
         const iataRegex = /^[A-Za-z]{3}$/;
-        if (!formData.originLocationCode || !iataRegex.test(formData.originLocationCode)) return;
-        if (!formData.destinationLocationCode || !iataRegex.test(formData.destinationLocationCode)) return;
+        const trimmedOrigin = formData.originLocationCode.trim();
+        const trimmedDestination = formData.destinationLocationCode.trim();
+
+        if (!trimmedOrigin || !iataRegex.test(trimmedOrigin)) return;
+        if (!trimmedDestination || !iataRegex.test(trimmedDestination)) return;
         if (!formData.departureDate) return;
+
         setSearchParams({
-            originLocationCode: formData.originLocationCode.toUpperCase(),
-            destinationLocationCode: formData.destinationLocationCode.toUpperCase(),
+            originLocationCode: trimmedOrigin.toUpperCase(),
+            destinationLocationCode: trimmedDestination.toUpperCase(),
             departureDate: formData.departureDate,
             adults: formData.adults,
         });
