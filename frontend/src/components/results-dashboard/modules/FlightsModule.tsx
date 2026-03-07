@@ -55,8 +55,10 @@ export default function FlightsModule({ tripId, org, dest, dates, curr }: Module
 
     // Trigger search after component mount once we parsed the params
     useEffect(() => {
-        const iataOrg = getIataCode(defaultOrg, "LHR");
-        const iataDest = getIataCode(defaultDest, "CDG");
+        // Only fallback to LHR / CDG if org / dest were completely omitted.
+        // If provided but invalid (unmappable), leave as is to flag validation warnings.
+        const iataOrg = defaultOrg ? getIataCode(defaultOrg, defaultOrg) : "LHR";
+        const iataDest = defaultDest ? getIataCode(defaultDest, defaultDest) : "CDG";
         let depDate = parseDepartureDate(defaultDates);
 
         setSearchParams({

@@ -21,17 +21,17 @@ export function EmergencyPanel({ isOpen, onClose }: EmergencyPanelProps) {
     const [resolvedDestIata, setResolvedDestIata] = useState<string | null>(null);
     const [locationStatus, setLocationStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
 
-    // Automatically trigger Geolocation on Mount if Drawer is open
-    useEffect(() => {
-        if (isOpen && locationStatus === 'idle' && !resolvedIata) {
-            handleLocateMe();
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isOpen]);
+    // We removed the automatic Geolocation trigger on mount to respect user privacy.
+    // Geolocation is now exclusively triggered manually via the 'handleLocateMe' button.
+    const [locateRequestId, setLocateRequestId] = useState<number>(0);
 
     const handleLocateMe = async () => {
         setLocationStatus('loading');
         setResolvedIata(null);
+
+        // Generate a unique ID for this locate request to prevent race conditions
+        const currentRequestId = Date.now();
+        setLocateRequestId(currentRequestId);
 
         if (!navigator.geolocation) {
             setLocationStatus('error');
@@ -46,34 +46,55 @@ export function EmergencyPanel({ isOpen, onClose }: EmergencyPanelProps) {
                     const res = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`);
                     const data = await res.json();
 
-                    const city = data.city || data.locality || data.principalSubdivision;
-                    if (city) {
-                        setCityInput(city);
-                        const iata = getIataCode(city, "");
-                        if (iata) {
-                            setResolvedIata(iata);
-                            setLocationStatus('success');
+                    // Only apply results if this is still the active request 
+                    // (meaning the user hasn't typed a manual override or started a new request)
+                    setLocateRequestId((activeId) => {
+                        if (activeId !== currentRequestId) return activeId;
+
+                        const city = data.city || data.locality || data.principalSubdivision;
+                        if (city) {
+                            setCityInput(city);
+                            const iata = getIataCode(city, "");
+                            if (iata) {
+                                setResolvedIata(iata);
+                                setLocationStatus('success');
+                            } else {
+                                setLocationStatus('error');
+                            }
                         } else {
-                            // Fallback if city mapping missed
                             setLocationStatus('error');
                         }
-                    } else {
-                        setLocationStatus('error');
-                    }
+
+                        return 0; // clear active token
+                    });
                 } catch (error) {
-                    setLocationStatus('error');
+                    setLocateRequestId((activeId) => {
+                        if (activeId === currentRequestId) setLocationStatus('error');
+                        return activeId === currentRequestId ? 0 : activeId;
+                    });
                 }
             },
             (error) => {
                 console.warn("Geolocation Error:", error);
-                setLocationStatus('error');
+                setLocateRequestId((activeId) => {
+                    if (activeId === currentRequestId) setLocationStatus('error');
+                    return activeId === currentRequestId ? 0 : activeId;
+                });
             },
             { timeout: 10000 }
         );
     };
 
+    const handleCityInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setCityInput(e.target.value);
+        setLocateRequestId(0); // Cancel any pending GPS results
+        setLocationStatus('idle');
+    };
+
     const handleManualSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+        setLocateRequestId(0); // Cancel any pending GPS results
+
         if (!cityInput) return;
 
         // Resolve origin
@@ -166,7 +187,7 @@ export function EmergencyPanel({ isOpen, onClose }: EmergencyPanelProps) {
                                                 <input
                                                     type="text"
                                                     value={cityInput}
-                                                    onChange={(e) => setCityInput(e.target.value)}
+                                                    onChange={handleCityInputChange}
                                                     placeholder="Enter origin city or IATA"
                                                     className="w-full bg-ink-900/50 border border-white/10 rounded-lg py-2.5 pl-9 pr-4 text-white text-sm focus:outline-none focus:border-sky-500/50 transition-colors"
                                                 />
