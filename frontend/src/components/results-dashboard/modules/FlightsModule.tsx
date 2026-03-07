@@ -24,10 +24,20 @@ const MAP_TO_IATA: Record<string, string> = {
     "Tokyo": "HND", "Kyoto": "ITM", "Osaka": "KIX", "Seoul": "ICN", "Beijing": "PEK",
     "Shanghai": "PVG", "Hong Kong": "HKG", "Singapore": "SIN", "Bangkok": "BKK",
     "Kuala Lumpur": "KUL", "Jakarta": "CGK", "Taipei": "TPE", "Manila": "MNL",
-    // India
-    "Delhi": "DEL", "Mumbai": "BOM", "Bangalore": "BLR", "Bengaluru": "BLR", "Chennai": "MAA", "Hyderabad": "HYD",
-    "Kolkata": "CCU", "Ahmedabad": "AMD", "Pune": "PNQ", "Goa": "GOI", "Kochi": "COK",
+    // India (Comprehensive)
+    "Delhi": "DEL", "New Delhi": "DEL", "Mumbai": "BOM", "Bangalore": "BLR", "Bengaluru": "BLR",
+    "Chennai": "MAA", "Madras": "MAA", "Hyderabad": "HYD", "Kolkata": "CCU", "Calcutta": "CCU",
+    "Ahmedabad": "AMD", "Pune": "PNQ", "Goa": "GOI", "Mopa": "GOX", "Kochi": "COK", "Cochin": "COK",
     "Bhubaneswar": "BBI", "Odisha": "BBI", "Jaipur": "JAI", "Lucknow": "LKO", "Guwahati": "GAU",
+    "Thiruvananthapuram": "TRV", "Trivandrum": "TRV", "Kozhikode": "CCJ", "Calicut": "CCJ",
+    "Patna": "PAT", "Bagdogra": "IXB", "Chandigarh": "IXC", "Madurai": "IXM", "Port Blair": "IXZ",
+    "Srinagar": "SXR", "Amritsar": "ATQ", "Varanasi": "VNS", "Coimbatore": "CJB", "Visakhapatnam": "VTZ",
+    "Nagpur": "NAG", "Bhopal": "BHO", "Indore": "IDR", "Ranchi": "IXR", "Vadodara": "BDQ",
+    "Mangalore": "IXE", "Mangaluru": "IXE", "Tiruchirappalli": "TRZ", "Trichy": "TRZ",
+    "Tirupati": "TIR", "Raipur": "RPR", "Jammu": "IXJ", "Dehradun": "DED", "Agartala": "IXA",
+    "Imphal": "IMF", "Surat": "STV", "Udaipur": "UDR", "Jodhpur": "JDH", "Gaya": "GAY",
+    "Dibrugarh": "DIB", "Silchar": "IXS", "Dimapur": "DMU", "Aurangabad": "IXU", "Rajkot": "RAJ",
+    "Tuticorin": "TCR", "Hubli": "HBX", "Belgaum": "IXG", "Mysore": "MYQ",
     // Middle East & Africa
     "Dubai": "DXB", "Doha": "DOH", "Abu Dhabi": "AUH", "Istanbul": "IST", "Cairo": "CAI",
     "Johannesburg": "JNB", "Cape Town": "CPT",
