@@ -31,9 +31,20 @@ export class HotelsController {
         if (!hotelIds) {
             throw new HttpException('Hotel IDs are required', HttpStatus.BAD_REQUEST);
         }
-        const numAdults = adults ? parseInt(adults, 10) : 1;
-        if (Number.isNaN(numAdults) || numAdults <= 0) {
-            throw new HttpException('Invalid adults value', HttpStatus.BAD_REQUEST);
+        const numAdults = adults ? Number(adults) : 1;
+        if (!Number.isInteger(numAdults) || numAdults <= 0) {
+            throw new HttpException('Invalid adults value – must be a positive integer', HttpStatus.BAD_REQUEST);
+        }
+
+        const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+        if (checkInDate && !dateRegex.test(checkInDate)) {
+            throw new HttpException('checkInDate must be YYYY-MM-DD', HttpStatus.BAD_REQUEST);
+        }
+        if (checkOutDate && !dateRegex.test(checkOutDate)) {
+            throw new HttpException('checkOutDate must be YYYY-MM-DD', HttpStatus.BAD_REQUEST);
+        }
+        if (checkInDate && checkOutDate && new Date(checkOutDate) <= new Date(checkInDate)) {
+            throw new HttpException('checkOutDate must be after checkInDate', HttpStatus.BAD_REQUEST);
         }
         return this.hotelsService.getHotelOffers(hotelIds, numAdults, checkInDate, checkOutDate);
     }
@@ -48,8 +59,13 @@ export class HotelsController {
 
     @Post('book')
     async bookHotel(@Body() bookingData: any) {
-        if (!bookingData || Object.keys(bookingData).length === 0) {
-            throw new HttpException('Booking data is required', HttpStatus.BAD_REQUEST);
+        if (
+            !bookingData ||
+            typeof bookingData !== 'object' ||
+            Array.isArray(bookingData) ||
+            Object.keys(bookingData).length === 0
+        ) {
+            throw new HttpException('Booking data must be a non-empty object', HttpStatus.BAD_REQUEST);
         }
         return this.hotelsService.bookHotel(bookingData);
     }

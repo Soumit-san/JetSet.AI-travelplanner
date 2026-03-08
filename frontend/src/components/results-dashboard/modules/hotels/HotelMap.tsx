@@ -30,12 +30,12 @@ function MapComponent({ hotels, center, selectedHotelId }: { hotels: HotelData[]
     useEffect(() => {
         if (map && hotels.length > 0) {
             // Clear existing markers
-            markersRef.current.forEach(marker => marker.setMap(null));
+            markersRef.current.forEach((marker) => { marker.setMap(null); });
             markersRef.current = [];
 
             const bounds = new ((window as any).google.maps.LatLngBounds)();
             hotels.forEach(hotel => {
-                if (hotel.latitude && hotel.longitude) {
+                if (hotel.latitude != null && hotel.longitude != null) {
                     const position = { lat: hotel.latitude, lng: hotel.longitude };
                     const marker = new ((window as any).google.maps.Marker)({
                         position,
@@ -48,7 +48,7 @@ function MapComponent({ hotels, center, selectedHotelId }: { hotels: HotelData[]
             });
             if (selectedHotelId) {
                 const selected = hotels.find(h => h.hotelId === selectedHotelId);
-                if (selected && selected.latitude && selected.longitude) {
+                if (selected && selected.latitude != null && selected.longitude != null) {
                     map.setCenter({ lat: selected.latitude, lng: selected.longitude });
                     map.setZoom(16);
                     return;
@@ -57,14 +57,14 @@ function MapComponent({ hotels, center, selectedHotelId }: { hotels: HotelData[]
 
             if (hotels.length > 1) {
                 map.fitBounds(bounds);
-            } else if (hotels.length === 1 && hotels[0].latitude && hotels[0].longitude) {
+            } else if (hotels.length === 1 && hotels[0].latitude != null && hotels[0].longitude != null) {
                 map.setCenter({ lat: hotels[0].latitude, lng: hotels[0].longitude });
                 map.setZoom(14);
             }
         }
 
         return () => {
-            markersRef.current.forEach(marker => marker.setMap(null));
+            markersRef.current.forEach((marker) => { marker.setMap(null); });
             markersRef.current = [];
         };
     }, [map, hotels, selectedHotelId]);

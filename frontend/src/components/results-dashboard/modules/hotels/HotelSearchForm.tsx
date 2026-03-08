@@ -24,6 +24,10 @@ export default function HotelSearchForm({ onSearch, isLoading, dates }: HotelSea
         if (timeoutRef.current) clearTimeout(timeoutRef.current);
 
         if (val.length < 3) {
+            if (abortControllerRef.current) {
+                abortControllerRef.current.abort();
+                abortControllerRef.current = null;
+            }
             setSuggestions([]);
             return;
         }

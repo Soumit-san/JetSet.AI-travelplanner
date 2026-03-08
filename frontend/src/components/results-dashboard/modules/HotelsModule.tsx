@@ -12,12 +12,13 @@ export default function HotelsModule({ tripId, dest, dates }: ModuleProps) {
     const [error, setError] = useState<string | null>(null);
     const [selectedHotelId, setSelectedHotelId] = useState<string | null>(null);
     const [currentCityCode, setCurrentCityCode] = useState<string>("");
-    const hasAutoSearched = useRef(false);
+    const lastAutoSearchedKey = useRef<string>("");
 
     useEffect(() => {
-        if (dest && !hasAutoSearched.current) {
-            // The dest param might be a full string like "Paris, France, CDG"
-            // We need to extract the 3-letter IATA code if it exists
+        if (dest) {
+            const key = `${dest}|${dates ?? ''}`;
+            if (lastAutoSearchedKey.current === key) return;
+
             const extractCode = (str: string) => {
                 const match = str.match(/\b([A-Z]{3})\b/);
                 return match ? match[1] : null;
@@ -25,7 +26,7 @@ export default function HotelsModule({ tripId, dest, dates }: ModuleProps) {
 
             const cityCode = extractCode(dest);
             if (cityCode) {
-                hasAutoSearched.current = true;
+                lastAutoSearchedKey.current = key;
                 handleSearch(cityCode, dates);
             }
         }
@@ -36,8 +37,22 @@ export default function HotelsModule({ tripId, dest, dates }: ModuleProps) {
         setError(null);
         try {
             const queryParams = new URLSearchParams({ cityCode });
-            if (searchDates) queryParams.append('checkInDate', searchDates); // Simplified matching for now
-            // Future: Parse searchDates for exact checkIn/checkOut
+
+            // Parse "Oct 12 - Oct 15" or "2026-03-10 - 2026-03-15" style date ranges
+            if (searchDates) {
+                const parts = searchDates.split(/\s*[-–]\s*/);
+                if (parts.length === 2) {
+                    queryParams.append('checkInDate', parts[0].trim());
+                    queryParams.append('checkOutDate', parts[1].trim());
+                } else {
+                    queryParams.append('checkInDate', searchDates.trim());
+                }
+            }
+            if (guests) {
+                // Extract numeric adults count, e.g. "2 Adults, 1 Room" -> 2
+                const adultsMatch = guests.match(/(\d+)\s*adult/i);
+                if (adultsMatch) queryParams.append('adults', adultsMatch[1]);
+            }
 
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/hotels/by-city?${queryParams.toString()}`);
             if (!res.ok) throw new Error("Failed to fetch hotels");
@@ -50,8 +65,12 @@ export default function HotelsModule({ tripId, dest, dates }: ModuleProps) {
                 longitude: h.geoCode?.longitude,
                 distance: h.distance?.value, // Amadeus often returns distance to city center
             }));
-            // Sort by distance if available
-            formattedHotels.sort((a, b) => (a.distance || 0) - (b.distance || 0));
+            // Sort by distance — entries with no distance go last
+            formattedHotels.sort((a, b) => {
+                if (a.distance == null) return 1;
+                if (b.distance == null) return -1;
+                return a.distance - b.distance;
+            });
 
             setHotels(formattedHotels);
             setCurrentCityCode(cityCode);

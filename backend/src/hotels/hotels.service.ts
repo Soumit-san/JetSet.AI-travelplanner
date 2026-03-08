@@ -109,20 +109,48 @@ export class HotelsService {
         return this.makeAmadeusRequest('/v1/booking/hotel-orders', bookingData, 'POST');
     }
 
-    private async makeAmadeusRequest(endpoint: string, data: any = {}, method: 'GET' | 'POST' = 'GET'): Promise<any> {
-        const token = await this.getAmadeusToken();
+    private async invalidateToken(): Promise<void> {
         try {
+            await this.cacheManager.del('amadeus_access_token');
+        } catch (err) {
+            this.logger.warn('Failed to evict token from cache', err);
+        }
+    }
+
+    private async makeAmadeusRequest(endpoint: string, data: any = {}, method: 'GET' | 'POST' = 'GET'): Promise<any> {
+        let token = await this.getAmadeusToken();
+
+        const execute = async (authToken: string) => {
             const config = {
-                headers: { Authorization: `Bearer ${token}` },
+                headers: { Authorization: `Bearer ${authToken}` },
                 timeout: this.requestTimeout,
             };
-
-            const response = method === 'GET'
+            return method === 'GET'
                 ? await lastValueFrom(this.httpService.get(`${this.amadeusUrl}${endpoint}`, { ...config, params: data }))
                 : await lastValueFrom(this.httpService.post(`${this.amadeusUrl}${endpoint}`, data, config));
+        };
 
+        try {
+            const response = await execute(token);
             return response.data;
         } catch (error: any) {
+            // On 401 evict cached token, re-acquire, and retry once
+            if (error?.response?.status === 401) {
+                this.logger.warn(`Amadeus 401 on ${endpoint}, refreshing token and retrying`);
+                await this.invalidateToken();
+                try {
+                    token = await this.getAmadeusToken();
+                    const retryResponse = await execute(token);
+                    return retryResponse.data;
+                } catch (retryError: any) {
+                    this.logger.error(`Amadeus retry for ${endpoint} also failed`, retryError?.response?.data || retryError?.message);
+                    throw new HttpException(
+                        retryError?.response?.data || `Failed to ${method === 'GET' ? 'fetch' : 'process'} hotel data`,
+                        retryError?.response?.status || HttpStatus.INTERNAL_SERVER_ERROR
+                    );
+                }
+            }
+
             this.logger.error(`Amadeus hotel ${method} request to ${endpoint} failed`, error?.response?.data || error?.message);
             throw new HttpException(
                 error?.response?.data || `Failed to ${method === 'GET' ? 'fetch' : 'process'} hotel data`,
