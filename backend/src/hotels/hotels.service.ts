@@ -70,6 +70,10 @@ export class HotelsService {
             );
 
             const token = response.data.access_token;
+            if (!token || typeof token !== 'string') {
+                this.logger.error('Amadeus token response missing or malformed access_token');
+                throw new HttpException('Invalid token received from Amadeus', HttpStatus.INTERNAL_SERVER_ERROR);
+            }
             const expiresIn = response.data.expires_in || 1799;
 
             try {
@@ -110,6 +114,7 @@ export class HotelsService {
     }
 
     private async invalidateToken(): Promise<void> {
+        this.amadeusTokenPromise = null;
         try {
             await this.cacheManager.del('amadeus_access_token');
         } catch (err) {

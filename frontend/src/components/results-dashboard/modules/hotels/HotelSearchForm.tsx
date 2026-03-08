@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { Search, MapPin, Calendar, User, ChevronDown } from "lucide-react";
+import { Search, MapPin, Calendar, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface HotelSearchFormProps {
@@ -13,7 +13,7 @@ export default function HotelSearchForm({ onSearch, isLoading, dates }: HotelSea
     const [dateInput, setDateInput] = useState(dates || "");
     const [guestInput, setGuestInput] = useState("2 Adults, 1 Room");
     const [suggestions, setSuggestions] = useState<any[]>([]);
-    const [isSearchingContext, setIsSearchingContext] = useState(false);
+    const [isFetchingSuggestions, setIsFetchingSuggestions] = useState(false);
     const abortControllerRef = useRef<AbortController | null>(null);
     const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -39,7 +39,7 @@ export default function HotelSearchForm({ onSearch, isLoading, dates }: HotelSea
             abortControllerRef.current = new AbortController();
 
             try {
-                setIsSearchingContext(true);
+                setIsFetchingSuggestions(true);
                 const params = new URLSearchParams({ keyword: val }).toString();
                 const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/hotels/autocomplete?${params}`, {
                     signal: abortControllerRef.current.signal
@@ -53,7 +53,7 @@ export default function HotelSearchForm({ onSearch, isLoading, dates }: HotelSea
                     console.error("Failed to fetch autocomplete", error);
                 }
             } finally {
-                setIsSearchingContext(false);
+                setIsFetchingSuggestions(false);
             }
         }, 300);
     };
@@ -69,7 +69,7 @@ export default function HotelSearchForm({ onSearch, isLoading, dates }: HotelSea
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (cityInput.length === 3) {
+        if (cityInput.length >= 3) {
             onSearch(cityInput.toUpperCase(), dateInput, guestInput);
             setSuggestions([]);
         }
@@ -93,20 +93,28 @@ export default function HotelSearchForm({ onSearch, isLoading, dates }: HotelSea
                         />
                     </div>
                     {/* Autocomplete Dropdown */}
-                    {suggestions.length > 0 && (
+                    {(suggestions.length > 0 || isFetchingSuggestions) && (
                         <div className="absolute top-[calc(100%+12px)] left-0 w-[300px] bg-[#151923] border border-white/10 rounded-xl overflow-hidden shadow-2xl z-[60]">
-                            {suggestions.map((s, idx) => (
-                                <div
-                                    key={idx}
-                                    className="px-4 py-3 hover:bg-white/5 cursor-pointer flex flex-col text-sm border-b border-white/5 last:border-0"
-                                    onClick={() => handleSelectSuggestion(s)}
-                                >
-                                    <span className="text-white font-medium">{s.name}</span>
-                                    <span className="text-white/50 text-xs">
-                                        {s.address?.cityName}, {s.address?.countryCode} ({s.address?.cityCode})
-                                    </span>
-                                </div>
-                            ))}
+                            {isFetchingSuggestions && suggestions.length === 0 && (
+                                <div className="px-4 py-3 text-white/40 text-sm">Searching...</div>
+                            )}
+                            {suggestions.map((s) => {
+                                const key = s.id || s.hotelId || s.iataCode || s.name || Math.random().toString();
+                                const addressLine = [s.address?.cityName, s.address?.countryCode].filter(Boolean).join(', ');
+                                const codeLabel = s.address?.cityCode ? ` (${s.address.cityCode})` : '';
+                                return (
+                                    <div
+                                        key={key}
+                                        className="px-4 py-3 hover:bg-white/5 cursor-pointer flex flex-col text-sm border-b border-white/5 last:border-0"
+                                        onClick={() => handleSelectSuggestion(s)}
+                                    >
+                                        <span className="text-white font-medium">{s.name || 'Unknown location'}</span>
+                                        <span className="text-white/50 text-xs">
+                                            {addressLine ? `${addressLine}${codeLabel}` : 'Location unknown'}
+                                        </span>
+                                    </div>
+                                );
+                            })}
                         </div>
                     )}
                 </div>
@@ -119,7 +127,7 @@ export default function HotelSearchForm({ onSearch, isLoading, dates }: HotelSea
                         <input
                             type="text"
                             className="w-full bg-transparent border-none text-white placeholder:text-white/30 focus:outline-none focus:ring-0 text-sm font-medium"
-                            placeholder="e.g. Oct 12 - Oct 15"
+                            placeholder="e.g. 2026-03-10 - 2026-03-15"
                             value={dateInput}
                             onChange={(e) => setDateInput(e.target.value)}
                             disabled={isLoading}

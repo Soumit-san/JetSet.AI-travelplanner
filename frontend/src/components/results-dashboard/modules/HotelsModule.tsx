@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import SkeletonLoader from "../SkeletonLoader";
 import { ModuleProps } from "./types";
 import HotelSearchForm from "./hotels/HotelSearchForm";
@@ -13,6 +13,71 @@ export default function HotelsModule({ tripId, dest, dates }: ModuleProps) {
     const [selectedHotelId, setSelectedHotelId] = useState<string | null>(null);
     const [currentCityCode, setCurrentCityCode] = useState<string>("");
     const lastAutoSearchedKey = useRef<string>("");
+
+    const tryNormalizeDateToISO = (input: string): string | null => {
+        const trimmed = input.trim();
+        // Already YYYY-MM-DD
+        if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) return trimmed;
+        // Try to parse as a date string
+        const parsed = new Date(trimmed);
+        if (!isNaN(parsed.getTime())) return parsed.toISOString().slice(0, 10);
+        return null;
+    };
+
+    const handleSearch = useCallback(async (cityCode: string, searchDates?: string, guests?: string) => {
+        setIsLoading(true);
+        setError(null);
+        try {
+            const queryParams = new URLSearchParams({ cityCode });
+
+            // Parse date ranges and normalize to YYYY-MM-DD
+            if (searchDates) {
+                const parts = searchDates.split(/\s*[-–]\s*/);
+                if (parts.length === 2) {
+                    const checkIn = tryNormalizeDateToISO(parts[0]);
+                    const checkOut = tryNormalizeDateToISO(parts[1]);
+                    if (checkIn) queryParams.append('checkInDate', checkIn);
+                    if (checkOut) queryParams.append('checkOutDate', checkOut);
+                } else {
+                    const checkIn = tryNormalizeDateToISO(searchDates);
+                    if (checkIn) queryParams.append('checkInDate', checkIn);
+                }
+            }
+            if (guests) {
+                const adultsMatch = guests.match(/(\d+)\s*adult/i);
+                if (adultsMatch) queryParams.append('adults', adultsMatch[1]);
+            }
+
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/hotels/by-city?${queryParams.toString()}`);
+            if (!res.ok) throw new Error("Failed to fetch hotels");
+            const data = await res.json();
+
+            const formattedHotels: HotelData[] = (data.data || []).map((h: any) => ({
+                hotelId: h.hotelId,
+                name: h.name,
+                latitude: h.geoCode?.latitude,
+                longitude: h.geoCode?.longitude,
+                distance: h.distance?.value,
+            }));
+            // Sort by distance — entries with no distance go last
+            formattedHotels.sort((a, b) => {
+                if (a.distance == null) return 1;
+                if (b.distance == null) return -1;
+                return a.distance - b.distance;
+            });
+
+            setHotels(formattedHotels);
+            setCurrentCityCode(cityCode);
+            setSelectedHotelId(null);
+        } catch (err: any) {
+            setError(err.message || "An error occurred");
+            setHotels([]);
+            setCurrentCityCode("");
+            setSelectedHotelId(null);
+        } finally {
+            setIsLoading(false);
+        }
+    }, []);
 
     useEffect(() => {
         if (dest) {
@@ -30,60 +95,7 @@ export default function HotelsModule({ tripId, dest, dates }: ModuleProps) {
                 handleSearch(cityCode, dates);
             }
         }
-    }, [dest, dates]);
-
-    const handleSearch = async (cityCode: string, searchDates?: string, guests?: string) => {
-        setIsLoading(true);
-        setError(null);
-        try {
-            const queryParams = new URLSearchParams({ cityCode });
-
-            // Parse "Oct 12 - Oct 15" or "2026-03-10 - 2026-03-15" style date ranges
-            if (searchDates) {
-                const parts = searchDates.split(/\s*[-–]\s*/);
-                if (parts.length === 2) {
-                    queryParams.append('checkInDate', parts[0].trim());
-                    queryParams.append('checkOutDate', parts[1].trim());
-                } else {
-                    queryParams.append('checkInDate', searchDates.trim());
-                }
-            }
-            if (guests) {
-                // Extract numeric adults count, e.g. "2 Adults, 1 Room" -> 2
-                const adultsMatch = guests.match(/(\d+)\s*adult/i);
-                if (adultsMatch) queryParams.append('adults', adultsMatch[1]);
-            }
-
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/hotels/by-city?${queryParams.toString()}`);
-            if (!res.ok) throw new Error("Failed to fetch hotels");
-            const data = await res.json();
-
-            const formattedHotels: HotelData[] = (data.data || []).map((h: any) => ({
-                hotelId: h.hotelId,
-                name: h.name,
-                latitude: h.geoCode?.latitude,
-                longitude: h.geoCode?.longitude,
-                distance: h.distance?.value, // Amadeus often returns distance to city center
-            }));
-            // Sort by distance — entries with no distance go last
-            formattedHotels.sort((a, b) => {
-                if (a.distance == null) return 1;
-                if (b.distance == null) return -1;
-                return a.distance - b.distance;
-            });
-
-            setHotels(formattedHotels);
-            setCurrentCityCode(cityCode);
-            setSelectedHotelId(null); // Reset selection on new search
-        } catch (err: any) {
-            setError(err.message || "An error occurred");
-            setHotels([]);
-            setCurrentCityCode("");
-            setSelectedHotelId(null);
-        } finally {
-            setIsLoading(false);
-        }
-    };
+    }, [dest, dates, handleSearch]);
 
     return (
         <div className="w-full h-full pb-10">

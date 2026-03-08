@@ -89,7 +89,7 @@ export default function ResultsDashboard({ tripId, org, dest, dates, curr }: Res
 
                     <TabsContent value="hotels" className="mt-0 focus-visible:ring-0 outline-none">
                         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
-                            <HotelsModule tripId={tripId} />
+                            <HotelsModule tripId={tripId} dest={dest} dates={dates} />
                         </motion.div>
                     </TabsContent>
 
