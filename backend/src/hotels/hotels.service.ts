@@ -8,7 +8,7 @@ import { lastValueFrom } from 'rxjs';
 @Injectable()
 export class HotelsService {
     private readonly logger = new Logger(HotelsService.name);
-    private readonly amadeusUrl = 'https://test.api.amadeus.com';
+    private readonly amadeusUrl: string;
     private readonly requestTimeout = 10000; // 10 seconds
     private amadeusTokenPromise: Promise<string> | null = null;
 
@@ -16,28 +16,31 @@ export class HotelsService {
         private httpService: HttpService,
         private configService: ConfigService,
         @Inject(CACHE_MANAGER) private cacheManager: Cache,
-    ) { }
+    ) {
+        this.amadeusUrl = this.configService.get<string>('AMADEUS_BASE_URL') || 'https://test.api.amadeus.com';
+    }
 
     private async getAmadeusToken(): Promise<string> {
         if (this.amadeusTokenPromise) {
             return this.amadeusTokenPromise;
         }
 
-        const cacheKey = 'amadeus_access_token';
-        try {
-            const cachedToken = await this.cacheManager.get<string>(cacheKey);
-            if (cachedToken) {
-                this.logger.debug('Using cached Amadeus token');
-                return cachedToken;
+        this.amadeusTokenPromise = (async () => {
+            const cacheKey = 'amadeus_access_token';
+            try {
+                const cachedToken = await this.cacheManager.get<string>(cacheKey);
+                if (cachedToken) {
+                    this.logger.debug('Using cached Amadeus token');
+                    return cachedToken;
+                }
+            } catch (err) {
+                this.logger.warn('Failed to get token from cache', err);
             }
-        } catch (err) {
-            this.logger.warn('Failed to get token from cache', err);
-        }
+            return this.fetchNewToken();
+        })();
 
-        this.amadeusTokenPromise = this.fetchNewToken();
         try {
-            const token = await this.amadeusTokenPromise;
-            return token;
+            return await this.amadeusTokenPromise;
         } finally {
             this.amadeusTokenPromise = null;
         }

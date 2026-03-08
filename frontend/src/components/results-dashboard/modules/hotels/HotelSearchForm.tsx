@@ -3,7 +3,7 @@ import { Search, MapPin, Calendar, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface HotelSearchFormProps {
-    onSearch: (cityCode: string, dates?: string, guests?: string) => void;
+    onSearch: (cityCode: string) => void;
     isLoading: boolean;
     dates?: string;
 }
@@ -63,14 +63,14 @@ export default function HotelSearchForm({ onSearch, isLoading, dates }: HotelSea
         setCityInput(code);
         setSuggestions([]);
         if (code) {
-            onSearch(code, dateInput, guestInput);
+            onSearch(code);
         }
     };
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (cityInput.length >= 3) {
-            onSearch(cityInput.toUpperCase(), dateInput, guestInput);
+            onSearch(cityInput.toUpperCase());
             setSuggestions([]);
         }
     };

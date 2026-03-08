@@ -13,44 +13,30 @@ export default function HotelsModule({ tripId, dest, dates }: ModuleProps) {
     const [selectedHotelId, setSelectedHotelId] = useState<string | null>(null);
     const [currentCityCode, setCurrentCityCode] = useState<string>("");
     const lastAutoSearchedKey = useRef<string>("");
+    const searchAbortRef = useRef<AbortController | null>(null);
 
-    const tryNormalizeDateToISO = (input: string): string | null => {
-        const trimmed = input.trim();
-        // Already YYYY-MM-DD
-        if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) return trimmed;
-        // Try to parse as a date string
-        const parsed = new Date(trimmed);
-        if (!isNaN(parsed.getTime())) return parsed.toISOString().slice(0, 10);
-        return null;
-    };
+    const handleSearch = useCallback(async (cityCode: string) => {
+        // Abort any in-flight search
+        if (searchAbortRef.current) {
+            searchAbortRef.current.abort();
+        }
+        const controller = new AbortController();
+        searchAbortRef.current = controller;
 
-    const handleSearch = useCallback(async (cityCode: string, searchDates?: string, guests?: string) => {
         setIsLoading(true);
         setError(null);
         try {
-            const queryParams = new URLSearchParams({ cityCode });
-
-            // Parse date ranges and normalize to YYYY-MM-DD
-            if (searchDates) {
-                const parts = searchDates.split(/\s*[-–]\s*/);
-                if (parts.length === 2) {
-                    const checkIn = tryNormalizeDateToISO(parts[0]);
-                    const checkOut = tryNormalizeDateToISO(parts[1]);
-                    if (checkIn) queryParams.append('checkInDate', checkIn);
-                    if (checkOut) queryParams.append('checkOutDate', checkOut);
-                } else {
-                    const checkIn = tryNormalizeDateToISO(searchDates);
-                    if (checkIn) queryParams.append('checkInDate', checkIn);
-                }
-            }
-            if (guests) {
-                const adultsMatch = guests.match(/(\d+)\s*adult/i);
-                if (adultsMatch) queryParams.append('adults', adultsMatch[1]);
-            }
-
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/hotels/by-city?${queryParams.toString()}`);
+            // /hotels/by-city only accepts cityCode; date/guest filters
+            // are handled by the separate /hotels/offers endpoint
+            const res = await fetch(
+                `${process.env.NEXT_PUBLIC_API_URL}/hotels/by-city?cityCode=${encodeURIComponent(cityCode)}`,
+                { signal: controller.signal }
+            );
             if (!res.ok) throw new Error("Failed to fetch hotels");
             const data = await res.json();
+
+            // If this request was superseded, bail out
+            if (searchAbortRef.current !== controller) return;
 
             const formattedHotels: HotelData[] = (data.data || []).map((h: any) => ({
                 hotelId: h.hotelId,
@@ -59,7 +45,6 @@ export default function HotelsModule({ tripId, dest, dates }: ModuleProps) {
                 longitude: h.geoCode?.longitude,
                 distance: h.distance?.value,
             }));
-            // Sort by distance — entries with no distance go last
             formattedHotels.sort((a, b) => {
                 if (a.distance == null) return 1;
                 if (b.distance == null) return -1;
@@ -70,31 +55,54 @@ export default function HotelsModule({ tripId, dest, dates }: ModuleProps) {
             setCurrentCityCode(cityCode);
             setSelectedHotelId(null);
         } catch (err: any) {
+            if (err.name === 'AbortError') return; // superseded, ignore
             setError(err.message || "An error occurred");
             setHotels([]);
             setCurrentCityCode("");
             setSelectedHotelId(null);
         } finally {
-            setIsLoading(false);
+            if (searchAbortRef.current === controller) {
+                setIsLoading(false);
+            }
         }
     }, []);
 
     useEffect(() => {
-        if (dest) {
-            const key = `${dest}|${dates ?? ''}`;
-            if (lastAutoSearchedKey.current === key) return;
+        if (!dest) return;
+        const key = `${dest}|${dates ?? ''}`;
+        if (lastAutoSearchedKey.current === key) return;
 
-            const extractCode = (str: string) => {
-                const match = str.match(/\b([A-Z]{3})\b/);
-                return match ? match[1] : null;
-            };
+        const extractCode = (str: string) => {
+            const match = str.match(/\b([A-Z]{3})\b/);
+            return match ? match[1] : null;
+        };
 
-            const cityCode = extractCode(dest);
-            if (cityCode) {
-                lastAutoSearchedKey.current = key;
-                handleSearch(cityCode, dates);
-            }
+        const cityCode = extractCode(dest);
+        if (cityCode) {
+            lastAutoSearchedKey.current = key;
+            handleSearch(cityCode);
+            return;
         }
+
+        // For plain-text destinations (e.g. "Tokyo, Japan"), resolve via autocomplete
+        const resolveAndSearch = async () => {
+            try {
+                const params = new URLSearchParams({ keyword: dest }).toString();
+                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/hotels/autocomplete?${params}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    const first = (data.data || [])[0];
+                    const resolved = first?.address?.cityCode || first?.iataCode;
+                    if (resolved) {
+                        lastAutoSearchedKey.current = key;
+                        handleSearch(resolved);
+                    }
+                }
+            } catch {
+                // Autocomplete resolve failed; user can still search manually
+            }
+        };
+        resolveAndSearch();
     }, [dest, dates, handleSearch]);
 
     return (
