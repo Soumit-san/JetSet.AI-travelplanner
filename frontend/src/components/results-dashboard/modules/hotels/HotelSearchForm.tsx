@@ -5,13 +5,10 @@ import { Button } from "@/components/ui/button";
 interface HotelSearchFormProps {
     onSearch: (cityCode: string) => void;
     isLoading: boolean;
-    dates?: string;
 }
 
-export default function HotelSearchForm({ onSearch, isLoading, dates }: HotelSearchFormProps) {
+export default function HotelSearchForm({ onSearch, isLoading }: HotelSearchFormProps) {
     const [cityInput, setCityInput] = useState("");
-    const [dateInput, setDateInput] = useState(dates || "");
-    const [guestInput, setGuestInput] = useState("2 Adults, 1 Room");
     const [suggestions, setSuggestions] = useState<any[]>([]);
     const [isFetchingSuggestions, setIsFetchingSuggestions] = useState(false);
     const abortControllerRef = useRef<AbortController | null>(null);
@@ -119,34 +116,30 @@ export default function HotelSearchForm({ onSearch, isLoading, dates }: HotelSea
                     )}
                 </div>
 
-                {/* Dates Input */}
-                <div className="flex-1 w-full flex items-center p-3 md:border-r border-white/10">
-                    <Calendar className="w-5 h-5 text-emerald-500 mr-4" />
+                {/* Dates Input — not yet supported by backend */}
+                <div className="flex-1 w-full flex items-center p-3 md:border-r border-white/10 opacity-50">
+                    <Calendar className="w-5 h-5 text-emerald-500/50 mr-4" />
                     <div className="flex-1">
                         <label className="text-[10px] font-bold tracking-wider text-white/40 uppercase mb-1 block">Dates</label>
                         <input
                             type="text"
-                            className="w-full bg-transparent border-none text-white placeholder:text-white/30 focus:outline-none focus:ring-0 text-sm font-medium"
-                            placeholder="e.g. 2026-03-10 - 2026-03-15"
-                            value={dateInput}
-                            onChange={(e) => setDateInput(e.target.value)}
-                            disabled={isLoading}
+                            className="w-full bg-transparent border-none text-white/40 placeholder:text-white/20 focus:outline-none focus:ring-0 text-sm font-medium cursor-not-allowed"
+                            placeholder="Coming soon"
+                            disabled
                         />
                     </div>
                 </div>
 
-                {/* Guests Input */}
-                <div className="flex-1 w-full flex items-center p-3">
-                    <User className="w-5 h-5 text-emerald-500 mr-4" />
+                {/* Guests Input — not yet supported by backend */}
+                <div className="flex-1 w-full flex items-center p-3 opacity-50">
+                    <User className="w-5 h-5 text-emerald-500/50 mr-4" />
                     <div className="flex-1">
                         <label className="text-[10px] font-bold tracking-wider text-white/40 uppercase mb-1 block">Guests</label>
                         <input
                             type="text"
-                            className="w-full bg-transparent border-none text-white placeholder:text-white/30 focus:outline-none focus:ring-0 text-sm font-medium"
-                            placeholder="e.g. 2 Adults, 1 Room"
-                            value={guestInput}
-                            onChange={(e) => setGuestInput(e.target.value)}
-                            disabled={isLoading}
+                            className="w-full bg-transparent border-none text-white/40 placeholder:text-white/20 focus:outline-none focus:ring-0 text-sm font-medium cursor-not-allowed"
+                            placeholder="Coming soon"
+                            disabled
                         />
                     </div>
                 </div>

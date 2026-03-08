@@ -107,7 +107,7 @@ export default function HotelsModule({ tripId, dest, dates }: ModuleProps) {
 
     return (
         <div className="w-full h-full pb-10">
-            <HotelSearchForm onSearch={handleSearch} isLoading={isLoading} dates={dates} />
+            <HotelSearchForm onSearch={handleSearch} isLoading={isLoading} />
 
             <div className="flex justify-between items-center mb-6">
                 <h2 className="text-xl font-bold text-white flex items-baseline gap-2">
