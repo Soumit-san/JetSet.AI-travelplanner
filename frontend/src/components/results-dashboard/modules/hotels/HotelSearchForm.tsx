@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Search, MapPin, Calendar, User, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface HotelSearchFormProps {
-    onSearch: (cityCode: string) => void;
+    onSearch: (cityCode: string, dates?: string, guests?: string) => void;
     isLoading: boolean;
     dates?: string;
 }
@@ -14,28 +14,44 @@ export default function HotelSearchForm({ onSearch, isLoading, dates }: HotelSea
     const [guestInput, setGuestInput] = useState("2 Adults, 1 Room");
     const [suggestions, setSuggestions] = useState<any[]>([]);
     const [isSearchingContext, setIsSearchingContext] = useState(false);
+    const abortControllerRef = useRef<AbortController | null>(null);
+    const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-    const handleInput = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
         const val = e.target.value;
         setCityInput(val);
+
+        if (timeoutRef.current) clearTimeout(timeoutRef.current);
 
         if (val.length < 3) {
             setSuggestions([]);
             return;
         }
 
-        try {
-            setIsSearchingContext(true);
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/hotels/autocomplete?keyword=${val}`);
-            if (res.ok) {
-                const data = await res.json();
-                setSuggestions(data.data || []);
+        timeoutRef.current = setTimeout(async () => {
+            if (abortControllerRef.current) {
+                abortControllerRef.current.abort();
             }
-        } catch (error) {
-            console.error("Failed to fetch autocomplete", error);
-        } finally {
-            setIsSearchingContext(false);
-        }
+            abortControllerRef.current = new AbortController();
+
+            try {
+                setIsSearchingContext(true);
+                const params = new URLSearchParams({ keyword: val }).toString();
+                const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/hotels/autocomplete?${params}`, {
+                    signal: abortControllerRef.current.signal
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    setSuggestions(data.data || []);
+                }
+            } catch (error: any) {
+                if (error.name !== 'AbortError') {
+                    console.error("Failed to fetch autocomplete", error);
+                }
+            } finally {
+                setIsSearchingContext(false);
+            }
+        }, 300);
     };
 
     const handleSelectSuggestion = (suggestion: any) => {
@@ -43,14 +59,14 @@ export default function HotelSearchForm({ onSearch, isLoading, dates }: HotelSea
         setCityInput(code);
         setSuggestions([]);
         if (code) {
-            onSearch(code);
+            onSearch(code, dateInput, guestInput);
         }
     };
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (cityInput.length === 3) {
-            onSearch(cityInput.toUpperCase());
+            onSearch(cityInput.toUpperCase(), dateInput, guestInput);
             setSuggestions([]);
         }
     };

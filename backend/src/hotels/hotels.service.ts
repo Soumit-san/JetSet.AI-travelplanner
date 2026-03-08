@@ -9,6 +9,8 @@ import { lastValueFrom } from 'rxjs';
 export class HotelsService {
     private readonly logger = new Logger(HotelsService.name);
     private readonly amadeusUrl = 'https://test.api.amadeus.com';
+    private readonly requestTimeout = 10000; // 10 seconds
+    private amadeusTokenPromise: Promise<string> | null = null;
 
     constructor(
         private httpService: HttpService,
@@ -17,6 +19,10 @@ export class HotelsService {
     ) { }
 
     private async getAmadeusToken(): Promise<string> {
+        if (this.amadeusTokenPromise) {
+            return this.amadeusTokenPromise;
+        }
+
         const cacheKey = 'amadeus_access_token';
         try {
             const cachedToken = await this.cacheManager.get<string>(cacheKey);
@@ -27,6 +33,18 @@ export class HotelsService {
         } catch (err) {
             this.logger.warn('Failed to get token from cache', err);
         }
+
+        this.amadeusTokenPromise = this.fetchNewToken();
+        try {
+            const token = await this.amadeusTokenPromise;
+            return token;
+        } finally {
+            this.amadeusTokenPromise = null;
+        }
+    }
+
+    private async fetchNewToken(): Promise<string> {
+        const cacheKey = 'amadeus_access_token';
 
         const clientId = this.configService.get<string>('AMADEUS_API_KEY') || '';
         const clientSecret = this.configService.get<string>('AMADEUS_API_SECRET') || '';
@@ -47,6 +65,7 @@ export class HotelsService {
             const response = await lastValueFrom(
                 this.httpService.post(`${this.amadeusUrl}/v1/security/oauth2/token`, params.toString(), {
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    timeout: this.requestTimeout,
                 })
             );
 
@@ -87,33 +106,28 @@ export class HotelsService {
 
     // A dummy booking endpoint for now, or real implementation if required details are provided
     async bookHotel(bookingData: any): Promise<any> {
-        const token = await this.getAmadeusToken();
-        try {
-            const response = await lastValueFrom(
-                this.httpService.post(`${this.amadeusUrl}/v1/booking/hotel-orders`, bookingData, {
-                    headers: { Authorization: `Bearer ${token}` }
-                })
-            );
-            return response.data;
-        } catch (error: any) {
-            this.logger.error('Amadeus hotel booking failed', error?.response?.data || error?.message);
-            throw new HttpException(error?.response?.data || 'Failed to book hotel', error?.response?.status || HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        return this.makeAmadeusRequest('/v1/booking/hotel-orders', bookingData, 'POST');
     }
 
-    private async makeAmadeusRequest(endpoint: string, queryParams: Record<string, any> = {}): Promise<any> {
+    private async makeAmadeusRequest(endpoint: string, data: any = {}, method: 'GET' | 'POST' = 'GET'): Promise<any> {
         const token = await this.getAmadeusToken();
         try {
-            const response = await lastValueFrom(
-                this.httpService.get(`${this.amadeusUrl}${endpoint}`, {
-                    headers: { Authorization: `Bearer ${token}` },
-                    params: queryParams,
-                })
-            );
+            const config = {
+                headers: { Authorization: `Bearer ${token}` },
+                timeout: this.requestTimeout,
+            };
+
+            const response = method === 'GET'
+                ? await lastValueFrom(this.httpService.get(`${this.amadeusUrl}${endpoint}`, { ...config, params: data }))
+                : await lastValueFrom(this.httpService.post(`${this.amadeusUrl}${endpoint}`, data, config));
+
             return response.data;
         } catch (error: any) {
-            this.logger.error(`Amadeus hotel request to ${endpoint} failed`, error?.response?.data || error?.message);
-            throw new HttpException(error?.response?.data || 'Failed to fetch hotel data', error?.response?.status || HttpStatus.INTERNAL_SERVER_ERROR);
+            this.logger.error(`Amadeus hotel ${method} request to ${endpoint} failed`, error?.response?.data || error?.message);
+            throw new HttpException(
+                error?.response?.data || `Failed to ${method === 'GET' ? 'fetch' : 'process'} hotel data`,
+                error?.response?.status || HttpStatus.INTERNAL_SERVER_ERROR
+            );
         }
     }
 }

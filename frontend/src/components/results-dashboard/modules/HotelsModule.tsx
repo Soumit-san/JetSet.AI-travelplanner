@@ -16,24 +16,30 @@ export default function HotelsModule({ tripId, dest, dates }: ModuleProps) {
 
     useEffect(() => {
         if (dest && !hasAutoSearched.current) {
-            hasAutoSearched.current = true;
             // The dest param might be a full string like "Paris, France, CDG"
             // We need to extract the 3-letter IATA code if it exists
             const extractCode = (str: string) => {
                 const match = str.match(/\b([A-Z]{3})\b/);
-                return match ? match[1] : str.substring(0, 3).toUpperCase();
+                return match ? match[1] : null;
             };
 
             const cityCode = extractCode(dest);
-            handleSearch(cityCode);
+            if (cityCode) {
+                hasAutoSearched.current = true;
+                handleSearch(cityCode, dates);
+            }
         }
-    }, [dest]);
+    }, [dest, dates]);
 
-    const handleSearch = async (cityCode: string) => {
+    const handleSearch = async (cityCode: string, searchDates?: string, guests?: string) => {
         setIsLoading(true);
         setError(null);
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/hotels/by-city?cityCode=${cityCode}`);
+            const queryParams = new URLSearchParams({ cityCode });
+            if (searchDates) queryParams.append('checkInDate', searchDates); // Simplified matching for now
+            // Future: Parse searchDates for exact checkIn/checkOut
+
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/hotels/by-city?${queryParams.toString()}`);
             if (!res.ok) throw new Error("Failed to fetch hotels");
             const data = await res.json();
 
@@ -52,6 +58,9 @@ export default function HotelsModule({ tripId, dest, dates }: ModuleProps) {
             setSelectedHotelId(null); // Reset selection on new search
         } catch (err: any) {
             setError(err.message || "An error occurred");
+            setHotels([]);
+            setCurrentCityCode("");
+            setSelectedHotelId(null);
         } finally {
             setIsLoading(false);
         }

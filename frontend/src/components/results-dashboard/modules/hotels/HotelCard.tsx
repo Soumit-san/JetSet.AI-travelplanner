@@ -49,10 +49,10 @@ export default function HotelCard({ hotel, isSelected, onClick, cityCode }: { ho
                     </div>
                 )}
 
-                {/* Favorite Heart */}
-                <button className="absolute bottom-3 right-3 p-2 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-full border border-white/20 transition-colors">
+                {/* Favorite Heart - Non-interactive until feature implemented */}
+                <div className="absolute bottom-3 right-3 p-2 bg-white/10 backdrop-blur-md rounded-full border border-white/20 transition-colors" role="img" aria-label="Save hotel (Coming soon)">
                     <Heart className="w-4 h-4 text-white" />
-                </button>
+                </div>
             </div>
 
             {/* Bottom Content Section */}
@@ -78,7 +78,7 @@ export default function HotelCard({ hotel, isSelected, onClick, cityCode }: { ho
                     {isSelected ? (
                         <div className="grid grid-cols-2 gap-2">
                             {bookingLinks.map(link => (
-                                <Button key={link.name} variant="outline" className="w-full text-xs h-10 bg-white/5 hover:bg-emerald-500 hover:text-white hover:border-emerald-500 text-white/80 border-white/10 transition-colors" onClick={(e) => { e.stopPropagation(); window.open(link.url, '_blank') }}>
+                                <Button key={link.name} variant="outline" className="w-full text-xs h-10 bg-white/5 hover:bg-emerald-500 hover:text-white hover:border-emerald-500 text-white/80 border-white/10 transition-colors" onClick={(e) => { e.stopPropagation(); window.open(link.url, '_blank', 'noopener,noreferrer') }}>
                                     {link.name}
                                 </Button>
                             ))}

@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Query, Body, HttpException, HttpStatus } from '@nestjs/common';
 import { HotelsService } from './hotels.service';
 
-@Controller('api/hotels')
+@Controller('hotels')
 export class HotelsController {
     constructor(private readonly hotelsService: HotelsService) { }
 
@@ -32,6 +32,9 @@ export class HotelsController {
             throw new HttpException('Hotel IDs are required', HttpStatus.BAD_REQUEST);
         }
         const numAdults = adults ? parseInt(adults, 10) : 1;
+        if (Number.isNaN(numAdults) || numAdults <= 0) {
+            throw new HttpException('Invalid adults value', HttpStatus.BAD_REQUEST);
+        }
         return this.hotelsService.getHotelOffers(hotelIds, numAdults, checkInDate, checkOutDate);
     }
 
@@ -45,7 +48,7 @@ export class HotelsController {
 
     @Post('book')
     async bookHotel(@Body() bookingData: any) {
-        if (!bookingData) {
+        if (!bookingData || Object.keys(bookingData).length === 0) {
             throw new HttpException('Booking data is required', HttpStatus.BAD_REQUEST);
         }
         return this.hotelsService.bookHotel(bookingData);

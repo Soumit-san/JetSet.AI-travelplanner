@@ -9,6 +9,7 @@ const MAP_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "";
 function MapComponent({ hotels, center, selectedHotelId }: { hotels: HotelData[]; center: { lat: number; lng: number }; selectedHotelId?: string | null }) {
     const mapRef = useRef<HTMLDivElement>(null);
     const [map, setMap] = useState<any>();
+    const markersRef = useRef<any[]>([]);
 
     useEffect(() => {
         if (mapRef.current && !map) {
@@ -28,15 +29,20 @@ function MapComponent({ hotels, center, selectedHotelId }: { hotels: HotelData[]
 
     useEffect(() => {
         if (map && hotels.length > 0) {
+            // Clear existing markers
+            markersRef.current.forEach(marker => marker.setMap(null));
+            markersRef.current = [];
+
             const bounds = new ((window as any).google.maps.LatLngBounds)();
             hotels.forEach(hotel => {
                 if (hotel.latitude && hotel.longitude) {
                     const position = { lat: hotel.latitude, lng: hotel.longitude };
-                    new ((window as any).google.maps.Marker)({
+                    const marker = new ((window as any).google.maps.Marker)({
                         position,
                         map,
                         title: hotel.name,
                     });
+                    markersRef.current.push(marker);
                     bounds.extend(position);
                 }
             });
@@ -56,6 +62,11 @@ function MapComponent({ hotels, center, selectedHotelId }: { hotels: HotelData[]
                 map.setZoom(14);
             }
         }
+
+        return () => {
+            markersRef.current.forEach(marker => marker.setMap(null));
+            markersRef.current = [];
+        };
     }, [map, hotels, selectedHotelId]);
 
     return <div ref={mapRef} className="w-full h-full rounded-2xl overflow-hidden" />;
