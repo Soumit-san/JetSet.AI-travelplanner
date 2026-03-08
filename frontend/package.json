@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@googlemaps/react-wrapper": "^1.2.0",
     "@hookform/resolvers": "^5.2.2",
     "@radix-ui/react-tabs": "^1.1.13",
     "@tanstack/react-query": "^5.90.21",

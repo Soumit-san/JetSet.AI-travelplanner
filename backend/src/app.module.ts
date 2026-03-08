@@ -8,6 +8,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { DestinationsModule } from './destinations/destinations.module';
 import { FlightsModule } from './flights/flights.module';
+import { HotelsModule } from './hotels/hotels.module';
 
 @Module({
   imports: [
@@ -70,6 +71,7 @@ import { FlightsModule } from './flights/flights.module';
     }),
     DestinationsModule,
     FlightsModule,
+    HotelsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
