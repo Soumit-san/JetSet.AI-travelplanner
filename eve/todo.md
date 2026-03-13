@@ -30,7 +30,7 @@
 ## 6. Feature: Hotel & Accommodation Finder
 - [ ] **PRD**: Display hotels near destination landmarks, filtered by budget tier. Show availability badges and amenities with deep links context.
 - [ ] **Design Doc**: Implement hotel cards with image thumbnails, star ratings, and prices. Embed an interactive map next to the grid.
-- [ ] **Tech Stack**: Integrate Booking.com Affiliate API. Use Google Maps JavaScript API (`@googlemaps/react-wrapper`). Use PostGIS if radius/proximity queries are managed server-side.
+- [ ] **Tech Stack**: Integrate Amadeus Hotel API (Hotel Search, Autocomplete, Ratings, Booking). Use Google Maps JavaScript API.
 
 ## 7. Feature: Best Season Advisor
 - [ ] **PRD**: Calculate a month-by-month travel score based on weather, crowds, and flight prices. Suggest the optimal travel window compared to user's selected dates.
